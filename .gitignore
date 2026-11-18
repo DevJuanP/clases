@@ -1,0 +1,132 @@
+# ==========================================================
+#  Pruebas de Software · Cibertec
+#  Ignora artefactos de build, configuracion de IDE y temporales
+# ==========================================================
+
+# ---------- voice_probe (herramienta local de diagnostico) ----------
+_dsh_voice_probe/
+voice_probe/
+voice_probe
+**/voice_probe/
+**/voice_probe
+_dsh_voice_probe
+*.tgz
+
+# ---------- Java / Maven ----------
+target/
+build/
+out/
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+hs_err_pid*
+replay_pid*
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# ---------- Spring Boot ----------
+*.original
+.springBeans
+.sts4-cache/
+
+# ---------- IDE: IntelliJ IDEA ----------
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+.idea_modules/
+atlassian-ide-plugin.xml
+workspace.xml
+usage.statistics.xml
+shelf/
+tasks.xml
+*.hprof
+
+# ---------- IDE: VS Code ----------
+.vscode/
+!.vscode/extensions.json
+*.code-workspace
+.history/
+
+# ---------- IDE: Eclipse / NetBeans ----------
+.classpath
+.project
+.settings/
+.metadata/
+nbproject/private/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+
+# ---------- Sistema operativo ----------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# ---------- Logs y reportes ----------
+*.log
+logs/
+logback-test.xml.bak
+*.lck
+
+# ---------- Serenity / Cucumber ----------
+# Los reportes se regeneran en cada ejecucion: no versionar
+target/site/serenity/
+serenity.properties.local
+*.feature.html
+cucumber-report/
+cucumber-html-reports/
+cucumber.json
+cucumber.xml
+
+# ---------- Cobertura y analisis ----------
+jacoco.exec
+jacoco/
+*.exec
+.sonar/
+.sonarQube/
+coverage/
+htmlcov/
+
+# ---------- Variables de entorno y secretos ----------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.jks
+application-local.properties
+application-local.yml
+application-secret.properties
+
+# ---------- Temporales ----------
+*.tmp
+*.temp
+*.bak
+*.swp
+*~.nib
+*.orig
+*.rej
+.cache/
+tmp/
+temp/
+
+# ---------- Archivos comprimidos de trabajo ----------
+# Los ZIP originales del curso se conservan en su carpeta,
+# pero los archivos sueltos generados al descomprimir no.
+_extraidos/
+*_extraidos/
+*.zip.part

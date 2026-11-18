@@ -421,6 +421,7 @@ input[type=range]::-webkit-slider-thumb{
 .qopt.locked{cursor:default}
 .qfeed{margin-top:10px;font-size:12.5px;line-height:1.6;color:var(--muted);
   border-left:2px solid var(--indigo);padding-left:12px;min-height:20px}
+.qfeed:empty{margin-top:0;padding-left:0;border-left-color:transparent;min-height:0}
 .qfeed b{color:var(--txt)}
 
 /* ============ TABLA ============ */
@@ -451,7 +452,9 @@ table.tbl td b{color:var(--txt);font-weight:600}
 
 /* ============ MODO DENSO (diapositivas con mucho contenido) ============ */
 .slide.dense{padding:64px 5vw 52px}
-.slide.dense .slide__inner{max-width:1280px;margin:0 auto}
+.slide.dense .slide__inner{max-width:1280px;margin:auto}
+.slide.dense h2{font-size:clamp(24px,2.7vw,34px);margin-bottom:12px}
+.slide.dense h2 code.i{font-size:.72em;padding:3px 8px;vertical-align:.06em}
 .slide.dense .lead{font-size:14.5px;line-height:1.5;margin-bottom:12px!important}
 .slide.dense .eyebrow{margin-bottom:10px}
 .slide.dense .card{padding:14px 17px}
@@ -1610,8 +1613,8 @@ assertEquals(imp(), 188.00);    // la forma idiomática</pre>
           <span class="ra-line" id="lPath"></span>
           <span class="ra-line" id="lWhen">.<span class="fn">when</span>().<span class="fn">get</span>()</span>
           <span class="ra-line" id="lThen">.<span class="fn">then</span>().<span class="fn">statusCode</span>(<span class="num">200</span>)<br>
-          &nbsp;&nbsp;.<span class="fn">body</span>(<span class="str">"country"</span>, <span class="fn">equalTo</span>(<span class="str">"United States"</span>))<br>
-          &nbsp;&nbsp;.<span class="fn">body</span>(<span class="str">"'places'[0].'place name'"</span>, <span class="fn">equalTo</span>(<span class="str">"New York City"</span>));</span>
+          &nbsp;&nbsp;.<span class="fn">body</span>(<span class="str">"country"</span>, <span class="fn">equalTo</span>(<span class="str" id="raExpPais">"United States"</span>))<br>
+          &nbsp;&nbsp;.<span class="fn">body</span>(<span class="str">"'places'[0].'place name'"</span>, <span class="fn">equalTo</span>(<span class="str" id="raExpLugar">"New York City"</span>));</span>
         </div>
         <div id="raResp" style="display:none"></div>
       </div>
@@ -2627,6 +2630,7 @@ assertEquals(imp(), 188.00);    // la forma idiomática</pre>
       status.textContent = 'Listo para enviar';
       status.style.color = 'var(--dim)';
       document.getElementById('raResp').style.display = 'none';
+      actualizarEsperados();
     }
 
     chips.forEach(function(c){
@@ -2641,14 +2645,23 @@ assertEquals(imp(), 188.00);    // la forma idiomática</pre>
     });
 
     var respuestas = {
-      'US|10000': { pais: 'United States', lugar: 'New York City', plazas: 1 },
-      'US|90210': { pais: 'United States', lugar: 'Beverly Hills', plazas: 1 },
-      'FR|13001': { pais: 'France', lugar: 'Marseille 01', plazas: 1 }
+      'US|10000': { pais: 'United States', lugar: 'New York City' },
+      'US|90210': { pais: 'United States', lugar: 'Beverly Hills' },
+      'FR|13001': { pais: 'France', lugar: 'Marseille 01' }
     };
+
+    function actualizarEsperados(){
+      var d = respuestas[sel.pais + '|' + sel.cp] || { pais: 'United States', lugar: '—' };
+      var ep = document.getElementById('raExpPais');
+      var el = document.getElementById('raExpLugar');
+      if (ep) ep.textContent = '"' + d.pais + '"';
+      if (el) el.textContent = '"' + d.lugar + '"';
+    }
 
     btn.addEventListener('click', function(){
       var key = sel.pais + '|' + sel.cp;
-      var d = respuestas[key] || { pais: sel.pais === 'FR' ? 'France' : 'United States', lugar: '—', plazas: 0 };
+      var d = respuestas[key] || { pais: sel.pais === 'FR' ? 'France' : 'United States', lugar: '—' };
+      actualizarEsperados();
       lineas.then.classList.add('on');
       status.textContent = '200 OK · 412 ms';
       status.style.color = 'var(--ok)';
@@ -2735,6 +2748,8 @@ assertEquals(imp(), 188.00);    // la forma idiomática</pre>
      ============================================================ */
   function fitSlides(){
     slides.forEach(function(s){
+      // la portada y las separatas usan centrado propio: no reescalar
+      if (s.querySelector('.hero') || s.querySelector('.divider')) return;
       var inner = s.querySelector('.slide__inner');
       if (!inner) return;
       inner.style.zoom = '';
