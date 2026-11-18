@@ -1,0 +1,2772 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pruebas de Software · JUnit · Mockito · Rest Assured · BDD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ============ TOKENS ============ */
+:root{
+  --bg:#070b14;
+  --bg-2:#0b1120;
+  --panel:#0f1626;
+  --panel-2:#141d31;
+  --line:#22304b;
+  --line-soft:#1a2438;
+  --txt:#e9eefb;
+  --muted:#8b9ab8;
+  --dim:#5d6b88;
+  --indigo:#6d8bff;
+  --violet:#a78bfa;
+  --cyan:#22d3ee;
+  --ok:#34d399;
+  --warn:#fbbf24;
+  --bad:#fb7185;
+  --pink:#f472b6;
+  --code-bg:#0a1120;
+  --radius:16px;
+  --font:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --mono:'JetBrains Mono','Cascadia Code',Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:var(--bg);
+  color:var(--txt);
+  font-family:var(--font);
+  overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(900px 600px at 12% -8%, rgba(109,139,255,.16), transparent 62%),
+    radial-gradient(800px 560px at 92% 4%, rgba(167,139,250,.13), transparent 60%),
+    radial-gradient(700px 500px at 50% 108%, rgba(34,211,238,.09), transparent 62%);
+}
+body::after{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.35;
+  background-image:linear-gradient(rgba(255,255,255,.022) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(255,255,255,.022) 1px,transparent 1px);
+  background-size:56px 56px;
+  mask-image:radial-gradient(circle at 50% 40%,#000 20%,transparent 78%);
+}
+::selection{background:rgba(109,139,255,.35)}
+
+/* ============ HUD ============ */
+.hud{
+  position:fixed;top:0;left:0;right:0;height:52px;z-index:60;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 26px;font-size:12px;letter-spacing:.04em;
+  color:var(--muted);
+  background:linear-gradient(180deg,rgba(7,11,20,.94),rgba(7,11,20,0));
+  backdrop-filter:blur(6px);
+}
+.hud__left{display:flex;align-items:center;gap:9px;font-weight:600;color:var(--txt);opacity:.85}
+.brand-dot{width:7px;height:7px;border-radius:99px;background:var(--indigo);
+  box-shadow:0 0 0 4px rgba(109,139,255,.15),0 0 14px rgba(109,139,255,.8);
+  animation:pulseDot 2.6s ease-in-out infinite}
+@keyframes pulseDot{0%,100%{opacity:1}50%{opacity:.35}}
+.hud__right{display:flex;align-items:center;gap:14px}
+#counter{font-family:var(--mono);font-size:11.5px;color:var(--dim);letter-spacing:.1em}
+.btn-ghost{
+  background:rgba(255,255,255,.03);border:1px solid var(--line);color:var(--muted);
+  font:inherit;font-size:11px;padding:6px 12px;border-radius:99px;cursor:pointer;
+  transition:.2s;letter-spacing:.05em;
+}
+.btn-ghost:hover{color:var(--txt);border-color:var(--indigo);background:rgba(109,139,255,.1)}
+.progress{position:fixed;top:0;left:0;right:0;height:2px;z-index:70;background:rgba(255,255,255,.05)}
+#progressBar{height:100%;width:0;background:linear-gradient(90deg,var(--indigo),var(--violet),var(--cyan));
+  transition:width .45s cubic-bezier(.4,0,.2,1);box-shadow:0 0 12px rgba(109,139,255,.8)}
+
+/* ============ SLIDES ============ */
+#slides{position:fixed;inset:0;z-index:10}
+.slide{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;
+  padding:74px 6vw 62px;
+  opacity:0;visibility:hidden;
+  transform:translateY(18px) scale(.994);
+  transition:opacity .5s ease,transform .5s cubic-bezier(.22,1,.36,1),visibility .5s;
+  pointer-events:none;
+  overflow-y:auto;overflow-x:hidden;
+}
+.slide::-webkit-scrollbar{width:9px}
+.slide::-webkit-scrollbar-thumb{background:#1e2a42;border-radius:9px}
+.slide.active{opacity:1;visibility:visible;transform:none;pointer-events:auto}
+.slide.leave-left{transform:translateX(-40px) scale(.99)}
+
+.slide__inner{width:100%;max-width:1180px;margin:auto;position:relative}
+.slide--wide .slide__inner{max-width:1320px}
+
+/* fragments */
+.frag{opacity:0;transform:translateY(16px)}
+.slide.active .frag{
+  animation:rise .62s cubic-bezier(.22,1,.36,1) forwards;
+  animation-delay:var(--d,0s);
+}
+@keyframes rise{to{opacity:1;transform:none}}
+.frag-x{opacity:0;transform:translateX(-18px)}
+.slide.active .frag-x{animation:slideR .55s cubic-bezier(.22,1,.36,1) forwards;animation-delay:var(--d,0s)}
+@keyframes slideR{to{opacity:1;transform:none}}
+.frag-s{opacity:0;transform:scale(.94);transform-origin:center}
+.slide.active .frag-s{animation:pop .6s cubic-bezier(.34,1.56,.64,1) forwards;animation-delay:var(--d,0s)}
+@keyframes pop{to{opacity:1;transform:none}}
+
+/* ============ TIPOGRAFÍA ============ */
+.eyebrow{
+  font-size:11px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--indigo);margin-bottom:14px;display:flex;align-items:center;gap:10px;
+}
+.eyebrow::before{content:'';width:26px;height:1.5px;background:linear-gradient(90deg,var(--indigo),transparent)}
+h1{font-size:clamp(38px,5.4vw,72px);line-height:1.02;font-weight:800;letter-spacing:-.035em}
+h2{font-size:clamp(26px,3.2vw,42px);line-height:1.1;font-weight:750;letter-spacing:-.026em;margin-bottom:14px}
+h3{font-size:clamp(16px,1.5vw,20px);font-weight:650;letter-spacing:-.01em;margin-bottom:8px}
+p{font-size:clamp(14px,1.22vw,16.5px);line-height:1.66;color:var(--muted)}
+p strong,li strong{color:var(--txt);font-weight:640}
+.lead{font-size:clamp(15px,1.5vw,19px);line-height:1.6;color:#b9c5dd;max-width:80ch}
+.grad{background:linear-gradient(100deg,var(--indigo),var(--violet) 45%,var(--cyan));
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+.kicker{color:var(--warn);font-weight:600}
+.sub{font-size:13px;color:var(--dim);line-height:1.6}
+
+/* ============ COMPONENTES ============ */
+.card{
+  background:linear-gradient(160deg,rgba(20,29,49,.92),rgba(13,20,34,.92));
+  border:1px solid var(--line);border-radius:var(--radius);
+  padding:20px 22px;position:relative;overflow:hidden;
+}
+.card::after{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(160deg,rgba(255,255,255,.05),transparent 42%)}
+.card--pad{padding:26px 28px}
+.card--accent{border-color:rgba(109,139,255,.42);box-shadow:0 0 0 1px rgba(109,139,255,.1),0 18px 44px -22px rgba(109,139,255,.5)}
+.card--ok{border-color:rgba(52,211,153,.35)}
+.card--warn{border-color:rgba(251,191,36,.35)}
+.card--bad{border-color:rgba(251,113,133,.35)}
+
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:30px;align-items:start}
+.split-60{display:grid;grid-template-columns:1.15fr .85fr;gap:30px;align-items:start}
+.split-40{display:grid;grid-template-columns:.85fr 1.15fr;gap:30px;align-items:start}
+
+.tag{
+  display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:700;
+  letter-spacing:.09em;text-transform:uppercase;padding:4px 10px;border-radius:99px;
+  border:1px solid var(--line);color:var(--muted);background:rgba(255,255,255,.02);
+}
+.tag--unit{color:#93b4ff;border-color:rgba(109,139,255,.4);background:rgba(109,139,255,.1)}
+.tag--int{color:#5eead4;border-color:rgba(34,211,238,.4);background:rgba(34,211,238,.1)}
+.tag--bdd{color:#c4b5fd;border-color:rgba(167,139,250,.4);background:rgba(167,139,250,.1)}
+.tag--ok{color:var(--ok);border-color:rgba(52,211,153,.4);background:rgba(52,211,153,.1)}
+.tag--warn{color:var(--warn);border-color:rgba(251,191,36,.4);background:rgba(251,191,36,.1)}
+.tag--bad{color:var(--bad);border-color:rgba(251,113,133,.4);background:rgba(251,113,133,.1)}
+
+ul.clean{list-style:none;display:flex;flex-direction:column;gap:10px}
+ul.clean li{position:relative;padding-left:22px;font-size:14.5px;line-height:1.6;color:var(--muted)}
+ul.clean li::before{content:'';position:absolute;left:2px;top:9px;width:6px;height:6px;border-radius:2px;
+  background:var(--indigo);transform:rotate(45deg);opacity:.9}
+ul.clean li.ok::before{background:var(--ok)}
+ul.clean li.bad::before{background:var(--bad)}
+ul.clean li.warn::before{background:var(--warn)}
+
+code.i{font-family:var(--mono);font-size:.9em;background:rgba(109,139,255,.13);
+  color:#a9c0ff;padding:2px 6px;border-radius:5px;border:1px solid rgba(109,139,255,.16)}
+
+/* code block */
+pre.code{
+  font-family:var(--mono);font-size:12.4px;line-height:1.68;
+  background:var(--code-bg);border:1px solid var(--line-soft);border-radius:12px;
+  padding:16px 18px;overflow:auto;color:#c3d0e8;position:relative;
+  tab-size:2;
+}
+pre.code::-webkit-scrollbar{height:8px}
+pre.code::-webkit-scrollbar-thumb{background:#1e2a42;border-radius:8px}
+.code-wrap{position:relative}
+.code-wrap__bar{
+  display:flex;align-items:center;gap:8px;padding:8px 14px;
+  background:#0d1526;border:1px solid var(--line-soft);border-bottom:none;
+  border-radius:12px 12px 0 0;font-family:var(--mono);font-size:11px;color:var(--dim);
+}
+.code-wrap__bar .dot{width:8px;height:8px;border-radius:99px}
+.code-wrap pre.code{border-radius:0 0 12px 12px}
+.kw{color:#c792ea}.fn{color:#82aaff}.str{color:#c3e88d}.num{color:#f78c6c}
+.cm{color:#556485;font-style:italic}.ann{color:#ffcb6b}.cls{color:#ffcb6b}
+
+/* metrics */
+.metric{display:flex;flex-direction:column;gap:4px}
+.metric__n{font-family:var(--mono);font-size:clamp(24px,2.6vw,36px);font-weight:700;letter-spacing:-.03em}
+.metric__l{font-size:11px;text-transform:uppercase;letter-spacing:.13em;color:var(--dim);font-weight:600}
+
+/* nav */
+.nav{position:fixed;bottom:22px;right:26px;z-index:60;display:flex;gap:9px}
+.nav button{
+  width:42px;height:42px;border-radius:12px;border:1px solid var(--line);
+  background:rgba(15,22,38,.9);color:var(--txt);font-size:16px;cursor:pointer;
+  display:grid;place-items:center;transition:.2s;backdrop-filter:blur(8px);
+}
+.nav button:hover{background:rgba(109,139,255,.16);border-color:var(--indigo);transform:translateY(-2px)}
+.nav button:disabled{opacity:.28;cursor:default;transform:none;background:rgba(15,22,38,.9)}
+#hint{
+  position:fixed;bottom:28px;left:26px;z-index:60;font-size:11px;color:var(--dim);
+  letter-spacing:.06em;transition:opacity .6s;
+}
+#hint kbd{font-family:var(--mono);background:rgba(255,255,255,.06);border:1px solid var(--line);
+  border-radius:4px;padding:1px 5px;font-size:10px;color:var(--muted)}
+
+/* overlay */
+.overlay{
+  position:fixed;inset:0;z-index:100;background:rgba(5,8,15,.9);backdrop-filter:blur(14px);
+  display:grid;place-items:center;padding:60px;
+  opacity:0;visibility:hidden;transition:.3s;
+}
+.overlay.on{opacity:1;visibility:visible}
+.overlay__panel{width:min(1100px,100%);max-height:100%;display:flex;flex-direction:column;gap:20px}
+.overlay__panel h2{font-size:22px;margin:0}
+.ov-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;overflow:auto;padding-right:6px}
+.ov-card{
+  text-align:left;background:rgba(20,29,49,.75);border:1px solid var(--line);border-radius:12px;
+  padding:14px;cursor:pointer;transition:.18s;color:var(--muted);font:inherit;
+}
+.ov-card:hover{border-color:var(--indigo);background:rgba(109,139,255,.13);transform:translateY(-2px);color:var(--txt)}
+.ov-card b{display:block;font-family:var(--mono);font-size:10px;color:var(--dim);margin-bottom:6px;letter-spacing:.1em}
+.ov-card span{font-size:12.5px;line-height:1.4;font-weight:550}
+.ov-card.cur{border-color:var(--indigo);background:rgba(109,139,255,.16)}
+
+/* ============ SLIDE: PORTADA ============ */
+.hero{display:grid;place-items:center;text-align:center;min-height:calc(100vh - 160px)}
+.hero h1{font-size:clamp(42px,6.6vw,92px);line-height:.96;letter-spacing:-.045em}
+.hero__sub{margin-top:22px;font-size:clamp(15px,1.6vw,20px);color:var(--muted);max-width:62ch;line-height:1.55}
+.hero__meta{margin-top:38px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.chip{
+  display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:99px;
+  border:1px solid var(--line);background:rgba(20,29,49,.7);font-size:12.5px;font-weight:600;color:#c5d2ea;
+}
+.chip i{width:6px;height:6px;border-radius:99px;display:block}
+.orb{
+  position:absolute;border-radius:50%;filter:blur(60px);pointer-events:none;z-index:-1;
+  animation:float 12s ease-in-out infinite;
+}
+@keyframes float{0%,100%{transform:translate(0,0)}33%{transform:translate(24px,-18px)}66%{transform:translate(-16px,14px)}}
+
+/* ============ PIRÁMIDE ============ */
+.pyr{display:flex;flex-direction:column;align-items:center;gap:7px;margin:8px 0}
+.pyr__row{
+  border-radius:9px;padding:13px 18px;cursor:pointer;transition:.25s;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  font-size:12.5px;font-weight:650;letter-spacing:.02em;
+  border:1px solid transparent;position:relative;
+}
+.pyr__row:hover{transform:scale(1.02)}
+.pyr__row.sel{box-shadow:0 0 0 1px currentColor, 0 10px 30px -12px currentColor}
+.pyr__row span.n{font-family:var(--mono);font-size:10px;opacity:.7}
+.pyr__row.r1{width:36%;background:rgba(167,139,250,.16);color:#c4b5fd;border-color:rgba(167,139,250,.32)}
+.pyr__row.r2{width:58%;background:rgba(34,211,238,.13);color:#67e8f9;border-color:rgba(34,211,238,.3)}
+.pyr__row.r3{width:82%;background:rgba(109,139,255,.14);color:#a5b8ff;border-color:rgba(109,139,255,.32)}
+
+/* ============ TABS ============ */
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.tab{
+  font:inherit;font-size:12px;font-weight:620;padding:8px 14px;border-radius:9px;cursor:pointer;
+  border:1px solid var(--line);background:rgba(255,255,255,.02);color:var(--muted);transition:.18s;
+}
+.tab:hover{color:var(--txt);border-color:#33425f}
+.tab.on{background:rgba(109,139,255,.16);border-color:rgba(109,139,255,.5);color:#c3d1ff}
+.pane{display:none}
+.pane.on{display:block;animation:fadeIn .35s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ============ ANOTACIONES JUNIT ============ */
+.ann-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.ann-card{
+  background:rgba(20,29,49,.6);border:1px solid var(--line);border-radius:12px;padding:13px 14px;
+  cursor:pointer;transition:.2s;
+}
+.ann-card:hover{border-color:rgba(109,139,255,.5);background:rgba(109,139,255,.09);transform:translateY(-2px)}
+.ann-card.on{border-color:var(--indigo);background:rgba(109,139,255,.16);box-shadow:0 12px 30px -20px var(--indigo)}
+.ann-card__n{font-family:var(--mono);font-size:12.5px;color:#ffcb6b;font-weight:600;margin-bottom:5px}
+.ann-card__d{font-size:11px;color:var(--muted);line-height:1.45}
+
+/* ============ LIFECYCLE ============ */
+.life{display:flex;flex-direction:column;gap:0;position:relative}
+.life__step{display:grid;grid-template-columns:120px 1fr;gap:16px;position:relative;padding-bottom:14px}
+.life__step:last-child{padding-bottom:0}
+.life__step::before{
+  content:'';position:absolute;left:59px;top:26px;bottom:-2px;width:1.5px;
+  background:linear-gradient(180deg,var(--line),transparent);
+}
+.life__step:last-child::before{display:none}
+.life__badge{
+  justify-self:end;font-family:var(--mono);font-size:10.5px;font-weight:600;
+  padding:5px 9px;border-radius:6px;background:rgba(109,139,255,.13);color:#a9c0ff;
+  border:1px solid rgba(109,139,255,.25);height:fit-content;white-space:nowrap;z-index:2;
+  position:relative;background-color:#0e1729;
+}
+.life__badge.ok{background-color:#0c2019;background:rgba(52,211,153,.12);color:#6ee7b7;border-color:rgba(52,211,153,.28)}
+.life__badge.now{background-color:#241a06;background:rgba(251,191,36,.13);color:#fcd34d;border-color:rgba(251,191,36,.3)}
+.life__body{font-size:12.8px;color:var(--muted);line-height:1.55;padding-top:3px}
+.life__body b{color:var(--txt);font-size:13px;display:block;margin-bottom:2px;font-weight:620}
+
+/* ============ TRIÁNGULO DEMO ============ */
+.demo-box{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center}
+.inp-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.inp{
+  width:74px;background:#0a1120;border:1px solid var(--line);border-radius:9px;
+  color:var(--txt);font-family:var(--mono);font-size:15px;padding:9px 11px;text-align:center;
+  transition:.2s;outline:none;
+}
+.inp:focus{border-color:var(--indigo);box-shadow:0 0 0 3px rgba(109,139,255,.16)}
+.btn{
+  font:inherit;font-size:12.5px;font-weight:640;padding:10px 18px;border-radius:9px;cursor:pointer;
+  border:1px solid rgba(109,139,255,.45);background:rgba(109,139,255,.15);color:#c3d1ff;transition:.2s;
+}
+.btn:hover{background:rgba(109,139,255,.26);transform:translateY(-1px)}
+.btn--flat{border-color:var(--line);background:rgba(255,255,255,.03);color:var(--muted)}
+.btn--flat:hover{background:rgba(255,255,255,.07);color:var(--txt)}
+.res-line{font-family:var(--mono);font-size:12.5px;color:var(--muted);margin-top:12px;line-height:1.7}
+.res-line b{color:var(--ok)}
+
+/* ============ SLIDER IMPUESTO ============ */
+.tax{display:grid;gap:14px}
+.tax__head{display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap}
+.tax__val{font-family:var(--mono);font-size:26px;font-weight:700;color:#fff;letter-spacing:-.02em}
+input[type=range]{
+  -webkit-appearance:none;appearance:none;width:100%;height:5px;border-radius:9px;
+  background:linear-gradient(90deg,var(--indigo),var(--violet),var(--warn));outline:none;cursor:pointer;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:17px;height:17px;border-radius:50%;background:#fff;
+  border:3px solid var(--indigo);box-shadow:0 3px 12px rgba(0,0,0,.6);cursor:grab;
+}
+.brackets{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin-top:6px}
+.bk{padding:7px 4px;border-radius:6px;text-align:center;font-size:9.5px;font-family:var(--mono);
+  border:1px solid var(--line-soft);color:var(--dim);transition:.25s;line-height:1.4}
+.bk b{display:block;font-size:11px;color:var(--muted)}
+.bk.on{background:rgba(251,191,36,.16);border-color:rgba(251,191,36,.5);color:#fcd34d}
+.bk.on b{color:#fde68a}
+
+/* ============ MOCKITO DIAGRAMA ============ */
+.mock-flow{display:flex;align-items:center;justify-content:center;gap:0;flex-wrap:nowrap;margin:8px 0}
+.mf-node{
+  flex:1;min-width:0;text-align:center;padding:14px 8px;border-radius:12px;
+  border:1px solid var(--line);background:rgba(20,29,49,.7);transition:.35s;position:relative;
+}
+.mf-node.hot{border-color:var(--warn);background:rgba(251,191,36,.12);box-shadow:0 0 0 1px rgba(251,191,36,.3),0 14px 34px -20px var(--warn)}
+.mf-node.done{border-color:rgba(52,211,153,.4);background:rgba(52,211,153,.08)}
+.mf-node__t{font-size:11.5px;font-weight:650;color:var(--txt);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mf-node__s{font-family:var(--mono);font-size:9.5px;color:var(--dim);letter-spacing:.02em}
+.mf-arrow{width:44px;flex:0 0 44px;height:2px;background:var(--line);position:relative;transition:.3s}
+.mf-arrow::after{content:'';position:absolute;right:0;top:-3px;border-left:6px solid var(--line);
+  border-top:4px solid transparent;border-bottom:4px solid transparent;transition:.3s}
+.mf-arrow.pass{background:var(--warn)}
+.mf-arrow.pass::after{border-left-color:var(--warn)}
+.mf-arrow.cut{background:repeating-linear-gradient(90deg,var(--bad) 0 5px,transparent 5px 10px)}
+.mf-arrow.cut::after{border-left-color:var(--bad)}
+
+/* ============ REST ASSURED BUILDER ============ */
+.ra{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip-sel{
+  font:inherit;font-family:var(--mono);font-size:11.5px;padding:6px 11px;border-radius:7px;
+  border:1px solid var(--line);background:rgba(255,255,255,.02);color:var(--muted);cursor:pointer;transition:.16s;
+}
+.chip-sel:hover{border-color:#344566;color:var(--txt)}
+.chip-sel.on{background:rgba(34,211,238,.14);border-color:rgba(34,211,238,.5);color:#67e8f9}
+.ra-code{font-family:var(--mono);font-size:12px;line-height:1.85;background:var(--code-bg);
+  border:1px solid var(--line-soft);border-radius:12px;padding:16px 18px;min-height:120px}
+.ra-line{opacity:.22;transition:.25s;display:block}
+.ra-line.on{opacity:1}
+
+/* ============ GHERKIN MAP ============ */
+.gh{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.gh-feature{font-family:var(--mono);font-size:12px;line-height:1.9;background:var(--code-bg);
+  border:1px solid var(--line-soft);border-radius:12px;padding:14px 16px}
+.gh-step{display:block;cursor:pointer;border-radius:6px;padding:1px 6px;margin:0 -6px;transition:.2s}
+.gh-step:hover,.gh-step.on{background:rgba(167,139,250,.16)}
+.gh-step .g{color:#c792ea;font-weight:600}
+.gh-map{display:flex;flex-direction:column;gap:8px}
+.gh-item{
+  border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:rgba(20,29,49,.55);
+  transition:.22s;
+}
+.gh-item.on{border-color:var(--violet);background:rgba(167,139,250,.12);transform:translateX(4px)}
+.gh-item__a{font-family:var(--mono);font-size:10.5px;color:#ffcb6b;margin-bottom:3px}
+.gh-item__m{font-family:var(--mono);font-size:12px;color:#82aaff}
+.gh-item__p{font-size:11px;color:var(--dim);margin-top:3px}
+
+/* ============ QUIZ ============ */
+.quiz{display:grid;gap:10px}
+.qopt{
+  display:flex;align-items:flex-start;gap:12px;text-align:left;font:inherit;
+  padding:13px 16px;border-radius:11px;border:1px solid var(--line);
+  background:rgba(20,29,49,.55);color:var(--muted);cursor:pointer;transition:.2s;font-size:13.5px;
+  line-height:1.45;
+}
+.qopt:hover:not(.locked){border-color:#3a4d70;background:rgba(109,139,255,.08);color:var(--txt)}
+.qopt__k{
+  flex:0 0 22px;height:22px;border-radius:6px;display:grid;place-items:center;
+  font-family:var(--mono);font-size:11px;font-weight:700;background:rgba(255,255,255,.05);
+  border:1px solid var(--line);color:var(--muted);
+}
+.qopt.correct{border-color:rgba(52,211,153,.6);background:rgba(52,211,153,.12);color:#d1fae5}
+.qopt.correct .qopt__k{background:var(--ok);color:#06231a;border-color:var(--ok)}
+.qopt.wrong{border-color:rgba(251,113,133,.55);background:rgba(251,113,133,.1);color:#ffe4e6}
+.qopt.wrong .qopt__k{background:var(--bad);color:#2d0910;border-color:var(--bad)}
+.qopt.locked{cursor:default}
+.qfeed{margin-top:10px;font-size:12.5px;line-height:1.6;color:var(--muted);
+  border-left:2px solid var(--indigo);padding-left:12px;min-height:20px}
+.qfeed b{color:var(--txt)}
+
+/* ============ TABLA ============ */
+table.tbl{width:100%;border-collapse:collapse;font-size:12.4px}
+table.tbl th{
+  text-align:left;padding:9px 11px;font-size:10px;text-transform:uppercase;letter-spacing:.11em;
+  color:var(--dim);font-weight:700;border-bottom:1px solid var(--line);
+}
+table.tbl td{padding:9px 11px;border-bottom:1px solid var(--line-soft);color:var(--muted);vertical-align:top}
+table.tbl tr:last-child td{border-bottom:none}
+table.tbl tr:hover td{background:rgba(255,255,255,.018)}
+table.tbl td b{color:var(--txt);font-weight:600}
+.mono-td{font-family:var(--mono);font-size:11.5px;color:#a9c0ff}
+
+/* ============ DIVIDER ============ */
+.divider{display:grid;place-items:center;min-height:calc(100vh - 190px);text-align:center;position:relative}
+.divider__n{
+  font-family:var(--mono);font-size:clamp(80px,15vw,190px);font-weight:800;line-height:.8;
+  letter-spacing:-.06em;color:transparent;
+  -webkit-text-stroke:1.5px rgba(109,139,255,.32);
+  margin-bottom:16px;
+}
+.divider h2{font-size:clamp(30px,4.4vw,58px);max-width:20ch;margin:0 auto 14px}
+.divider p{max-width:56ch;margin:0 auto}
+
+/* ============ STAT PILL ============ */
+.statline{display:flex;gap:34px;flex-wrap:wrap;padding:16px 0;border-top:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft)}
+
+/* ============ MODO DENSO (diapositivas con mucho contenido) ============ */
+.slide.dense{padding:64px 5vw 52px}
+.slide.dense .slide__inner{max-width:1280px;margin:0 auto}
+.slide.dense .lead{font-size:14.5px;line-height:1.5;margin-bottom:12px!important}
+.slide.dense .eyebrow{margin-bottom:10px}
+.slide.dense .card{padding:14px 17px}
+.slide.dense .card--pad{padding:18px 20px}
+.slide.dense pre.code{font-size:11.2px;line-height:1.58;padding:12px 15px}
+.slide.dense .code-wrap__bar{padding:6px 12px;font-size:10.5px}
+.slide.dense .grid{gap:12px}
+.slide.dense .split,.slide.dense .split-60,.slide.dense .split-40{gap:22px}
+.slide.dense table.tbl th{padding:7px 10px}
+.slide.dense table.tbl td{padding:7px 10px}
+.slide.dense p{font-size:13px}
+.slide.dense ul.clean li{font-size:13px;gap:8px}
+.slide.dense .life__step{padding-bottom:11px}
+.slide.dense .mf-node{padding:10px 6px}
+.slide.dense .gh-item{padding:8px 11px}
+.slide.dense .metric__n{font-size:26px}
+
+/* ============ PRINT ============ */
+@media print{
+  body{overflow:visible;background:#fff;color:#000}
+  .hud,.nav,#hint,.progress,.overlay,body::before,body::after{display:none!important}
+  #slides{position:static}
+  .slide{position:static;opacity:1!important;visibility:visible!important;transform:none!important;
+    page-break-after:always;height:100vh;padding:40px}
+  .frag,.frag-x,.frag-s{opacity:1!important;transform:none!important;animation:none!important}
+  .pane{display:block!important}
+}
+@media (max-width:1100px){
+  .g4{grid-template-columns:repeat(2,1fr)}
+  .ann-grid{grid-template-columns:repeat(2,1fr)}
+  .split,.split-60,.split-40,.ra,.gh{grid-template-columns:1fr}
+  .brackets{grid-template-columns:repeat(3,1fr)}
+}
+@media (max-width:760px){
+  .slide{padding:66px 20px 80px}
+  .g2,.g3{grid-template-columns:1fr}
+  .hud{padding:0 14px}
+  #hint{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="progress"><div id="progressBar"></div></div>
+
+<header class="hud">
+  <div class="hud__left"><span class="brand-dot"></span>Pruebas de Software · PS</div>
+  <div class="hud__right">
+    <button class="btn-ghost" id="btnOverview">Vista general · O</button>
+    <span id="counter">01 / 34</span>
+  </div>
+</header>
+
+<main id="slides">
+
+<!-- ============ 01 · PORTADA ============ -->
+<section class="slide" data-title="Portada">
+  <div class="slide__inner hero">
+    <div class="orb" style="width:420px;height:420px;background:rgba(109,139,255,.28);top:-8%;left:-6%"></div>
+    <div class="orb" style="width:360px;height:360px;background:rgba(167,139,250,.22);bottom:-10%;right:-4%;animation-delay:-4s"></div>
+    <div style="position:relative;z-index:2">
+      <div class="eyebrow frag" style="justify-content:center;--d:.05s">Cibertec · 6.º ciclo · Pruebas de Software</div>
+      <h1 class="frag" style="--d:.12s">Cómo se prueba<br><span class="grad">software de verdad</span></h1>
+      <p class="hero__sub frag" style="--d:.24s">Un recorrido por las tres técnicas que trabajamos en clase —pruebas unitarias, pruebas de integración de API y automatización BDD— contadas desde el código real de los proyectos, no desde la teoría.</p>
+      <div class="hero__meta frag" style="--d:.36s">
+        <span class="chip"><i style="background:var(--indigo)"></i>JUnit 5</span>
+        <span class="chip"><i style="background:var(--warn)"></i>Mockito</span>
+        <span class="chip"><i style="background:var(--cyan)"></i>Rest Assured</span>
+        <span class="chip"><i style="background:var(--violet)"></i>Gherkin + Cucumber</span>
+        <span class="chip"><i style="background:var(--pink)"></i>Serenity</span>
+      </div>
+      <p class="sub frag" style="--d:.5s;margin-top:46px">Navega con <kbd style="font-family:var(--mono);background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:4px;padding:1px 6px">←</kbd> <kbd style="font-family:var(--mono);background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:4px;padding:1px 6px">→</kbd> · pulsa <kbd style="font-family:var(--mono);background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:4px;padding:1px 6px">O</kbd> para ver el índice</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 02 · AGENDA ============ -->
+<section class="slide dense" data-title="Agenda del recorrido">
+  <div class="slide__inner">
+    <div class="eyebrow frag">Agenda</div>
+    <h2 class="frag" style="--d:.06s">Cuatro bloques, un solo hilo</h2>
+    <p class="lead frag" style="--d:.12s;margin-bottom:30px">Cada bloque responde tres preguntas: <strong>qué es</strong>, <strong>en qué contexto se aplica</strong> y <strong>cómo quedó implementado en el proyecto de clase</strong>.</p>
+
+    <div class="grid g4">
+      <div class="card frag" style="--d:.2s">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:12px">
+          <span class="tag tag--unit">Bloque 1</span>
+          <span style="font-family:var(--mono);font-size:11px;color:var(--dim)">01–04</span>
+        </div>
+        <h3>JUnit 5</h3>
+        <p style="font-size:13px">La unidad mínima. Se prueba una clase sola, sin red ni base de datos.</p>
+        <div class="sub" style="margin-top:10px;font-family:var(--mono);color:#93b4ff">Suma · Triángulo · ImpuestoRenta · ShoppingCart</div>
+      </div>
+
+      <div class="card frag" style="--d:.28s">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:12px">
+          <span class="tag tag--warn">Bloque 2</span>
+          <span style="font-family:var(--mono);font-size:11px;color:var(--dim)">05–06</span>
+        </div>
+        <h3>Mockito</h3>
+        <p style="font-size:13px">Cuando la unidad depende de otra cosa, se sustituye por un doble.</p>
+        <div class="sub" style="margin-top:10px;font-family:var(--mono);color:#fcd34d">PersonaServiceImpl · PersonaController</div>
+      </div>
+
+      <div class="card frag" style="--d:.36s">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:12px">
+          <span class="tag tag--int">Bloque 3</span>
+          <span style="font-family:var(--mono);font-size:11px;color:var(--dim)">07–08</span>
+        </div>
+        <h3>Rest Assured</h3>
+        <p style="font-size:13px">Se prueba el API real por HTTP: request, status, cuerpo y esquema.</p>
+        <div class="sub" style="margin-top:10px;font-family:var(--mono);color:#67e8f9">Zippopotam · GoRest</div>
+      </div>
+
+      <div class="card frag" style="--d:.44s">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:12px">
+          <span class="tag tag--bdd">Bloque 4</span>
+          <span style="font-family:var(--mono);font-size:11px;color:var(--dim)">09–10</span>
+        </div>
+        <h3>Gherkin + Cucumber</h3>
+        <p style="font-size:13px">El comportamiento se escribe en español y el código lo ejecuta.</p>
+        <div class="sub" style="margin-top:10px;font-family:var(--mono);color:#c4b5fd">.feature · StepDefs · Serenity</div>
+      </div>
+    </div>
+
+    <div class="card card--accent frag" style="--d:.54s;margin-top:20px;padding:16px 22px">
+      <p style="font-size:13.5px;margin:0"><strong>La idea que amarra todo:</strong> no son técnicas que compiten. Son <strong>capas de una misma red de seguridad</strong>. Una pirámide sana tiene muchas unitarias rápidas, algunas de integración y muy pocas de punta a punta.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 03 · POR QUÉ PROBAR ============ -->
+<section class="slide" data-title="¿Por qué probar? El costo del error">
+  <div class="slide__inner">
+    <div class="eyebrow frag">Contexto</div>
+    <h2 class="frag" style="--d:.06s">Un bug cuesta distinto según <span class="grad">cuándo lo encuentras</span></h2>
+
+    <div class="split frag" style="--d:.14s;margin-top:26px">
+      <div>
+        <p style="margin-bottom:18px">Un error en la lógica de negocio no nace caro: <strong>nace gratis</strong>. Se encarece con cada etapa que atraviesa sin que nadie lo note. Por eso las pruebas se automatizan y se ejecutan en cada cambio, no al final del proyecto.</p>
+        <ul class="clean">
+          <li class="ok"><strong>Lo encuentras escribiendo el test:</strong> lo corriges en minutos, con el código aún fresco en la cabeza.</li>
+          <li class="warn"><strong>Lo encuentra el QA:</strong> hay que reproducirlo, entenderlo, reabrirlo en el tablero, volver a desplegar.</li>
+          <li class="bad"><strong>Lo encuentra el usuario:</strong> hay incidente, hay pérdida de datos, hay confianza rota y hay una reunión incómoda.</li>
+        </ul>
+      </div>
+
+      <div class="card card--pad">
+        <div class="statline" style="flex-direction:column;gap:18px;border-top:none;border-bottom:none;padding:0">
+          <div>
+            <div class="metric__n" style="color:var(--ok)">~1×</div>
+            <div class="metric__l">Detectado al escribir el test</div>
+          </div>
+          <div>
+            <div class="metric__n" style="color:var(--warn)">~10×</div>
+            <div class="metric__l">Detectado en QA / integración</div>
+          </div>
+          <div>
+            <div class="metric__n" style="color:var(--bad)">~100×</div>
+            <div class="metric__l">Detectado ya en producción</div>
+          </div>
+        </div>
+        <p class="sub" style="margin-top:18px;padding-top:14px;border-top:1px solid var(--line-soft)">Órdenes de magnitud clásicos de la ingeniería de software. La cifra exacta se discute; la dirección, no.</p>
+      </div>
+    </div>
+
+    <div class="grid g3 frag" style="--d:.26s;margin-top:22px">
+      <div class="card"><h3 style="font-size:15px">Confianza para cambiar</h3><p style="font-size:12.5px">Sin tests, refactorizar da miedo. Con tests, el miedo se sustituye por una respuesta en 30 segundos.</p></div>
+      <div class="card"><h3 style="font-size:15px">Documentación viva</h3><p style="font-size:12.5px">Un test que pasa es una afirmación verdadera sobre el sistema. Un comentario, en cambio, miente con el tiempo.</p></div>
+      <div class="card"><h3 style="font-size:15px">Diseño más limpio</h3><p style="font-size:12.5px">Si algo es imposible de testear, casi siempre es porque está mal acoplado. El test es el primer crítico de tu diseño.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 04 · PIRÁMIDE ============ -->
+<section class="slide" data-title="La pirámide de pruebas (interactiva)">
+  <div class="slide__inner">
+    <div class="eyebrow frag">Modelo mental</div>
+    <h2 class="frag" style="--d:.06s">La pirámide: mucha base, poca cima</h2>
+
+    <div class="split-40" style="margin-top:26px">
+      <div class="frag" style="--d:.14s">
+        <div class="pyr">
+          <div class="pyr__row r1" data-pyr="e2e"><span class="n">03</span> E2E / UI · pocas</div>
+          <div class="pyr__row r2" data-pyr="integracion"><span class="n">02</span> Integración / API</div>
+          <div class="pyr__row r3" data-pyr="unit"><span class="n">01</span> Unitarias · muchas</div>
+        </div>
+        <p class="sub" style="text-align:center;margin-top:14px">Haz clic en cada capa</p>
+      </div>
+
+      <div class="card card--pad frag" style="--d:.22s;min-height:280px;display:flex;flex-direction:column;justify-content:center" id="pyrCard">
+        <div id="pyrOut"></div>
+      </div>
+    </div>
+
+    <div class="grid g3 frag" style="--d:.34s;margin-top:24px">
+      <div class="card" style="padding:16px 18px">
+        <h3 style="font-size:14px;margin-bottom:6px">¿Por qué más abajo hay más?</h3>
+        <p style="font-size:12.5px">Porque son baratas de escribir y de ejecutar. Mil pruebas unitarias corren en segundos; mil pruebas E2E tardarían horas y fallarían por razones ajenas al código.</p>
+      </div>
+      <div class="card" style="padding:16px 18px">
+        <h3 style="font-size:14px;margin-bottom:6px">El antipatrón: el cono de helado</h3>
+        <p style="font-size:12.5px">Pirámide invertida: muchas E2E y casi nada unitario. Resultado: suite lenta, inestable y que nadie se atreve a tocar. Es el error más común en equipos que empiezan.</p>
+      </div>
+      <div class="card" style="padding:16px 18px">
+        <h3 style="font-size:14px;margin-bottom:6px">Las capas no se sustituyen</h3>
+        <p style="font-size:12.5px">Una prueba unitaria perfecta no te dice que el JSON salga bien por HTTP. Cada capa cubre un riesgo distinto; por eso en clase hicimos las tres.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 05 · TAXONOMÍA ============ -->
+<section class="slide slide--wide dense" data-title="Taxonomía: quién prueba qué">
+  <div class="slide__inner">
+    <div class="eyebrow frag">Comparativa</div>
+    <h2 class="frag" style="--d:.06s">Cuatro técnicas, cuatro preguntas distintas</h2>
+
+    <div class="card frag" style="--d:.14s;margin-top:22px;padding:6px 4px">
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th style="width:15%">Técnica</th>
+            <th style="width:24%">¿Qué pregunta responde?</th>
+            <th style="width:19%">Herramientas en clase</th>
+            <th style="width:14%">Velocidad</th>
+            <th style="width:28%">Cuándo se escribe</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag--unit">Unitaria</span></td>
+            <td>«¿Esta clase hace bien su cálculo, aislada del resto?»</td>
+            <td class="mono-td">JUnit 5<br>Mockito</td>
+            <td><b style="color:var(--ok)">ms</b></td>
+            <td>Mientras escribes la clase, o incluso antes (TDD).</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag--int">Integración</span></td>
+            <td>«¿Las piezas conectadas de verdad producen el resultado correcto?»</td>
+            <td class="mono-td">Rest Assured<br>Spring Boot Test</td>
+            <td><b style="color:var(--warn)">segundos</b></td>
+            <td>Cuando el flujo entre capas ya existe y quieres verificar el contrato.</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag--bdd">BDD</span></td>
+            <td>«¿El sistema cumple el comportamiento que el negocio describió?»</td>
+            <td class="mono-td">Gherkin<br>Cucumber<br>Serenity</td>
+            <td><b style="color:var(--warn)">segundos</b></td>
+            <td>Antes de implementar: el escenario se acuerda con negocio.</td>
+          </tr>
+          <tr>
+            <td><span class="tag" style="color:#f9a8d4;border-color:rgba(244,114,182,.4);background:rgba(244,114,182,.1)">E2E / UI</span></td>
+            <td>«¿Un usuario real puede completar el flujo de punta a punta?»</td>
+            <td class="mono-td">Selenium<br>Playwright</td>
+            <td><b style="color:var(--bad)">minutos</b></td>
+            <td>Solo para los caminos críticos del negocio.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="grid g2 frag" style="--d:.26s;margin-top:20px">
+      <div class="card card--ok">
+        <h3 style="font-size:15px">Lo que sí distingue a BDD</h3>
+        <p style="font-size:13px">No es «Cucumber». BDD es una forma de <strong>acordar el comportamiento antes de programarlo</strong>: negocio escribe el escenario en lenguaje natural, desarrollo lo automatiza. Cucumber es solo la herramienta que une ambas mitades.</p>
+      </div>
+      <div class="card card--warn">
+        <h3 style="font-size:15px">Lo que BDD no es</h3>
+        <p style="font-size:13px">No es una capa más de pruebas unitarias disfrazada de inglés. Si escribes escenarios Gherkin para probar getters y setters, terminaste con lo peor de los dos mundos: lento y redundante.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 06 · DIVIDER JUNIT ============ -->
+<section class="slide" data-title="Bloque 1 · JUnit 5">
+  <div class="slide__inner divider">
+    <div style="position:relative;z-index:2">
+      <div class="divider__n frag-s" style="--d:.05s">01</div>
+      <div class="eyebrow frag" style="--d:.12s;justify-content:center">Pruebas unitarias</div>
+      <h2 class="frag" style="--d:.18s">JUnit 5</h2>
+      <p class="lead frag" style="--d:.26s">El estándar de facto para probar Java. La unidad más pequeña de código, verificada en milisegundos y sin dependencias externas.</p>
+      <div class="hero__meta frag" style="--d:.36s;margin-top:30px">
+        <span class="chip">Suma</span>
+        <span class="chip">Triángulo</span>
+        <span class="chip">Año bisiesto</span>
+        <span class="chip">Password</span>
+        <span class="chip">Impuesto a la renta</span>
+        <span class="chip">Carrito de compras</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 07 · QUÉ ES JUNIT ============ -->
+<section class="slide" data-title="Qué es JUnit 5 y cómo se compone">
+  <div class="slide__inner">
+    <div class="eyebrow frag">Fundamento</div>
+    <h2 class="frag" style="--d:.06s">JUnit 5 no es una sola librería</h2>
+    <p class="lead frag" style="--d:.12s;margin-bottom:26px">Es una plataforma formada por tres módulos que se pueden usar por separado. Entenderlo evita la mitad de los errores de configuración en Maven.</p>
+
+    <div class="grid g3">
+      <div class="card card--pad frag" style="--d:.2s">
+        <span class="tag tag--unit" style="margin-bottom:12px">Platform</span>
+        <h3>JUnit Platform</h3>
+        <p style="font-size:13px">El motor de ejecución. Descubre los tests, los ejecuta y reporta. Es lo que Maven o Gradle invocan. Permite correr otros frameworks de test encima.</p>
+        <div class="sub" style="margin-top:10px;font-family:var(--mono);color:#93b4ff">junit-platform-launcher</div>
+      </div>
+      <div class="card card--pad frag" style="--d:.28s">
+        <span class="tag tag--ok" style="margin-bottom:12px">Jupiter</span>
+        <h3>JUnit Jupiter</h3>
+        <p style="font-size:13px">El modelo de programación moderno: <code class="i">@Test</code>, <code class="i">@BeforeEach</code>, <code class="i">assertEquals</code>… Es lo que escribes en el 99 % de los casos, y lo que usamos en clase.</p>
+        <div class="sub" style="margin-top:10px;font-family:var(--mono);color:#6ee7b7">junit-jupiter</div>
+      </div>
+      <div class="card card--pad frag" style="--d:.36s">
+        <span class="tag" style="margin-bottom:12px">Vintage</span>
+        <h3>JUnit Vintage</h3>
+        <p style="font-size:13px">Puente de compatibilidad para ejecutar tests escritos con JUnit 3 y 4 (los de <code class="i">@RunWith</code> y <code class="i">@Before</code>) dentro de la plataforma nueva.</p>
+        <div class="sub" style="margin-top:10px;font-family:var(--mono);color:var(--dim)">junit-vintage-engine</div>
+      </div>
+    </div>
+
+    <div class="code-wrap frag" style="--d:.46s;margin-top:22px">
+      <div class="code-wrap__bar">
+        <span class="dot" style="background:#fb7185"></span>
+        <span class="dot" style="background:#fbbf24"></span>
+        <span class="dot" style="background:#34d399"></span>
+        <span style="margin-left:8px">pom.xml — dependencia que usamos</span>
+      </div>
+      <pre class="code">&lt;<span class="fn">dependency</span>&gt;
+  &lt;<span class="fn">groupId</span>&gt;org.junit.jupiter&lt;/<span class="fn">groupId</span>&gt;
+  &lt;<span class="fn">artifactId</span>&gt;junit-jupiter&lt;/<span class="fn">artifactId</span>&gt;
+  &lt;<span class="fn">version</span>&gt;5.9.3&lt;/<span class="fn">version</span>&gt;
+  &lt;<span class="fn">scope</span>&gt;test&lt;/<span class="fn">scope</span>&gt;   <span class="cm">&lt;!-- no viaja al artefacto final --&gt;</span>
+&lt;/<span class="fn">dependency</span>&gt;</pre>
+    </div>
+
+    <p class="sub frag" style="--d:.56s;margin-top:12px"><strong>Detalle que importa:</strong> con <code class="i">spring-boot-starter-test</code> (los proyectos del Tema 2) JUnit 5, Mockito y AssertJ ya vienen incluidos. No hay que declararlos uno a uno.</p>
+  </div>
+</section>
+
+<!-- ============ 08 · ANATOMÍA AAA ============ -->
+<section class="slide" data-title="Anatomía de un test: Given / When / Then">
+  <div class="slide__inner">
+    <div class="eyebrow frag">Estructura</div>
+    <h2 class="frag" style="--d:.06s">Todo test sano tiene las mismas tres partes</h2>
+    <p class="lead frag" style="--d:.12s;margin-bottom:24px">Se conoce como <strong>AAA</strong> (Arrange–Act–Assert) y es el mismo esqueleto de Gherkin. Un test que mezcla las tres partes en diez líneas no se entiende cuando falla.</p>
+
+    <div class="split" style="margin-top:6px">
+      <div class="frag" style="--d:.2s">
+        <div class="life">
+          <div class="life__step">
+            <div class="life__badge">1 · ARRANGE</div>
+            <div class="life__body"><b>Prepara el escenario</b>Creas los objetos, defines los datos de entrada, configuras los mocks. Todo lo que el test necesita para poder ejecutarse.</div>
+          </div>
+          <div class="life__step">
+            <div class="life__badge now">2 · ACT</div>
+            <div class="life__body"><b>Ejecuta la acción</b>Una sola llamada al método que estás probando. Si aquí hay tres llamadas, probablemente tienes tres tests disfrazados de uno.</div>
+          </div>
+          <div class="life__step">
+            <div class="life__badge ok">3 · ASSERT</div>
+            <div class="life__body"><b>Verifica el resultado</b>Compara lo obtenido con lo esperado. Si no hay aserción, no es un test: es un script que a veces explota.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="frag" style="--d:.3s">
+        <div class="code-wrap">
+          <div class="code-wrap__bar"><span style="color:#93b4ff">SumaTest.java</span><span style="margin-left:auto;color:var(--dim)">Tema 1</span></div>
+          <pre class="code"><span class="ann">@Test</span>
+<span class="kw">public void</span> <span class="fn">sumaPositivos</span>() {
+  <span class="cm">// ARRANGE — preparo los datos</span>
+  <span class="cls">Suma</span> S = <span class="kw">new</span> <span class="cls">Suma</span>(<span class="num">2</span>, <span class="num">3</span>);
+
+  <span class="cm">// ACT — ejecuto lo que quiero probar</span>
+  <span class="kw">int</span> resultado = S.<span class="fn">sumar</span>();
+
+  <span class="cm">// ASSERT — verifico</span>
+  <span class="fn">assertTrue</span>(resultado == <span class="num">5</span>);
+}</pre>
+        </div>
+        <div class="card card--warn" style="margin-top:14px;padding:14px 18px">
+          <p style="font-size:12.5px;margin:0"><strong>Observa el detalle:</strong> en el proyecto original la llamada va dentro del <code class="i">assertTrue</code>. Funciona, pero separar Arrange/Act/Assert hace que el test se lea como una receta. Lo retomamos en la diapositiva de hallazgos.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 09 · ANOTACIONES + LIFECYCLE ============ -->
+<section class="slide slide--wide dense" data-title="Anotaciones y ciclo de vida (interactivo)">
+  <div class="slide__inner">
+    <div class="eyebrow frag">API de JUnit 5</div>
+    <h2 class="frag" style="--d:.06s">El ciclo de vida de un test</h2>
+
+    <div class="split" style="margin-top:24px">
+      <div class="frag" style="--d:.14s">
+        <div class="ann-grid" style="grid-template-columns:repeat(2,1fr)" id="annCards">
+          <div class="ann-card" data-ann="test"><div class="ann-card__n">@Test</div><div class="ann-card__d">Marca un caso de prueba</div></div>
+          <div class="ann-card" data-ann="beforeeach"><div class="ann-card__n">@BeforeEach</div><div class="ann-card__d">Antes de cada test</div></div>
+          <div class="ann-card" data-ann="aftereach"><div class="ann-card__n">@AfterEach</div><div class="ann-card__d">Después de cada test</div></div>
+          <div class="ann-card" data-ann="beforeall"><div class="ann-card__n">@BeforeAll</div><div class="ann-card__d">Una vez, al inicio (static)</div></div>
+          <div class="ann-card" data-ann="afterall"><div class="ann-card__n">@AfterAll</div><div class="ann-card__d">Una vez, al final (static)</div></div>
+          <div class="ann-card" data-ann="disabled"><div class="ann-card__n">@Disabled</div><div class="ann-card__d">Salta el test</div></div>
+          <div class="ann-card" data-ann="displayname"><div class="ann-card__n">@DisplayName</div><div class="ann-card__d">Nombre legible en el reporte</div></div>
+          <div class="ann-card" data-ann="nested"><div class="ann-card__n">@Nested</div><div class="ann-card__d">Agrupa tests relacionados</div></div>
+        </div>
+        <div class="card" style="margin-top:14px;padding:16px 18px;min-height:112px">
+          <div id="annOut" style="font-size:12.8px;line-height:1.65;color:var(--muted)"></div>
+        </div>
+      </div>
+
+      <div class="frag" style="--d:.22s">
+        <div class="sub" style="margin-bottom:10px;font-weight:600;color:var(--txt)">Orden real de ejecución</div>
+        <div class="life">
+          <div class="life__step"><div class="life__badge">@BeforeAll</div><div class="life__body"><b>1 vez por clase</b>Debe ser <code class="i">static</code>. Se usa para recursos caros: conexión, contenedor, servidor embebido.</div></div>
+          <div class="life__step"><div class="life__badge now">@BeforeEach</div><div class="life__body"><b>Antes de cada @Test</b>Deja el escenario en estado conocido. Aquí se crea el objeto bajo prueba.</div></div>
+          <div class="life__step"><div class="life__badge ok">@Test</div><div class="life__body"><b>El caso</b>Arrange → Act → Assert.</div></div>
+          <div class="life__step"><div class="life__badge">@AfterEach</div><div class="life__body"><b>Después de cada @Test</b>Corre incluso si el test falló. Libera lo creado en @BeforeEach.</div></div>
+          <div class="life__step"><div class="life__badge">@AfterAll</div><div class="life__body"><b>1 vez por clase</b>Cierra lo abierto en @BeforeAll.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card card--accent frag" style="--d:.34s;margin-top:20px;padding:15px 20px">
+      <p style="font-size:13px;margin:0"><strong>Regla práctica:</strong> si dos tests necesitan exactamente los mismos datos, ese setup va en <code class="i">@BeforeEach</code>. Si un test cambia el objeto para su propio escenario, lo modifica dentro del test — y el <code class="i">@BeforeEach</code> del siguiente ya lo dejará limpio. Esa es la razón de ser del ciclo de vida: <strong>aislamiento</strong>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 10 · ASERCIONES ============ -->
+<section class="slide slide--wide dense" data-title="Aserciones: el vocabulario de la verificación">
+  <div class="slide__inner">
+    <div class="eyebrow frag">API de JUnit 5</div>
+    <h2 class="frag" style="--d:.06s">Las aserciones que usamos (y cómo fallan)</h2>
+    <p class="lead frag" style="--d:.12s;margin-bottom:22px">Una aserción es una promesa. Si la promesa se rompe, JUnit lanza <code class="i">AssertionFailedError</code> y detiene ese test. El resto sigue corriendo.</p>
+
+    <div class="card frag" style="--d:.18s;padding:6px 4px">
+      <table class="tbl">
+        <thead><tr><th style="width:22%">Aserción</th><th style="width:38%">Qué promete</th><th style="width:40%">Dónde aparece en el curso</th></tr></thead>
+        <tbody>
+          <tr><td class="mono-td">assertEquals(exp, act)</td><td>Dos valores son iguales usando <code class="i">equals()</code>.</td><td>Valores esperados de <code class="i">ImpuestoRenta</code>, precios del carrito.</td></tr>
+          <tr><td class="mono-td">assertTrue(cond)</td><td>La condición es verdadera.</td><td><code class="i">SumaTest</code>, <code class="i">YearUtilitiesTest</code>, tipo de triángulo.</td></tr>
+          <tr><td class="mono-td">assertFalse(cond)</td><td>La condición es falsa.</td><td>Casi siempre el espejo del <code class="i">assertTrue</code> del mismo caso.</td></tr>
+          <tr><td class="mono-td">assertNull / assertNotNull</td><td>La referencia es (o no es) nula.</td><td>Ejemplos comparativos del <code class="i">Tema2Sesion1ApplicationTest</code>.</td></tr>
+          <tr><td class="mono-td">assertSame(a, b)</td><td>Ambas referencias apuntan al <b>mismo</b> objeto (identidad, no igualdad).</td><td>Demostración de por qué <code class="i">"hola"</code> y <code class="i">"hol"+"a"</code> se comportan distinto.</td></tr>
+          <tr><td class="mono-td">assertArrayEquals</td><td>Dos arreglos tienen el mismo contenido, elemento por elemento.</td><td>Arreglo de nombres del ejemplo comparativo.</td></tr>
+          <tr><td class="mono-td">assertThrows</td><td>La ejecución lanza una excepción del tipo indicado.</td><td>La forma correcta de probar errores (falta en el código del curso).</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="grid g2 frag" style="--d:.3s;margin-top:20px">
+      <div class="code-wrap">
+        <div class="code-wrap__bar"><span style="color:#93b4ff">Tema2Sesion1ApplicationTest.java</span><span style="margin-left:auto;color:var(--bad)">así no</span></div>
+        <pre class="code"><span class="cm">// assertEquals(int, int) — mezcla tipos primitivos</span>
+<span class="ann">@Test</span>
+<span class="kw">public void</span> <span class="fn">ejemploAssertEquals9</span>() {
+  <span class="fn">assertEquals</span>(<span class="str">'2'</span>, <span class="num">2</span>);   <span class="cm">// char vs int → 50 != 2</span>
+}
+
+<span class="cm">// assertSame compara identidad de referencia</span>
+<span class="ann">@Test</span>
+<span class="kw">public void</span> <span class="fn">ejemploAssertSame7</span>() {
+  <span class="cls">String</span> a = <span class="str">"hola"</span>;
+  <span class="cls">String</span> b = <span class="str">"hol"</span> + <span class="str">"a"</span>;
+  <span class="cls">String</span> c = b;
+  <span class="fn">assertSame</span>(a, c);  <span class="cm">// ¿mismo objeto en el pool?</span>
+}</pre>
+      </div>
+      <div class="code-wrap">
+        <div class="code-wrap__bar"><span style="color:#93b4ff">el patrón robusto</span><span style="margin-left:auto;color:var(--ok)">así sí</span></div>
+        <pre class="code"><span class="cm">// 1. Nombra los valores: el fallo se explica solo</span>
+<span class="fn">assertEquals</span>(<span class="num">188.00</span>, impuesto, <span class="str">"tasa 8% sobre 30 000"</span>);
+
+<span class="cm">// 2. Para double usa el delta (tolerancia)</span>
+<span class="fn">assertEquals</span>(<span class="num">188.00</span>, impuesto, <span class="num">0.01</span>);
+
+<span class="cm">// 3. Para excepciones usa assertThrows</span>
+<span class="ann">@Test</span>
+<span class="kw">void</span> <span class="fn">divideEntreCero</span>() {
+  <span class="fn">assertThrows</span>(<span class="cls">ArithmeticException</span>.<span class="kw">class</span>,
+      () -&gt; calculadora.<span class="fn">dividir</span>(<span class="num">1</span>, <span class="num">0</span>));
+}</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 11 · CASO SUMA ============ -->
+<section class="slide" data-title="Caso aplicado: la primera prueba (Suma)">
+  <div class="slide__inner">
+    <div class="eyebrow frag">Aplicación real · Tema 1</div>
+    <h2 class="frag" style="--d:.06s">Empezamos por lo más simple: sumar</h2>
+    <p class="lead frag" style="--d:.12s;margin-bottom:24px">Antes de Spring, antes de APIs, la clase más pequeña del curso. El objetivo no era el cálculo: era <strong>aprender el ciclo completo</strong> — escribo, ejecuto, veo verde o rojo.</p>
+
+    <div class="split">
+      <div class="frag" style="--d:.18s">
+        <div class="code-wrap">
+          <div class="code-wrap__bar"><span style="color:#93b4ff">Suma.java</span><span style="margin-left:auto;color:var(--dim)">producción</span></div>
+          <pre class="code"><span class="kw">public class</span> <span class="cls">Suma</span> {
+  <span class="kw">private int</span> a, b;
+
+  <span class="kw">public</span> <span class="cls">Suma</span>(<span class="kw">int</span> a, <span class="kw">int</span> b) {
+    <span class="kw">this</span>.a = a;
+    <span class="kw">this</span>.b = b;
+  }
+
+  <span class="kw">public int</span> <span class="fn">sumar</span>() {
+    <span class="kw">return</span> a + b;
+  }
+}</pre>
+        </div>
+        <div class="card card--pad" style="margin-top:14px;padding:16px 18px">
+          <p style="font-size:12.5px;margin:0"><strong>El valor de esta prueba no es demostrar que 2+3=5.</strong> Es demostrar que el <em>mecanismo</em> funciona: Maven descubre el test, lo ejecuta y reporta. Una vez que ese circuito gira, escalar a lógica compleja es solo cuestión de escribir más casos.</p>
+        </div>
+      </div>
+
+      <div class="frag" style="--d:.28s">
+        <div class="code-wrap">
+          <div class="code-wrap__bar"><span style="color:#93b4ff">SumaTest.java</span><span style="margin-left:auto;color:var(--ok)">3 tests</span></div>
+          <pre class="code"><span class="ann">@Test</span>
+<span class="kw">public void</span> <span class="fn">sumaPositivos</span>() {
+  <span class="cls">Suma</span> S = <span class="kw">new</span> <span class="cls">Suma</span>(<span class="num">2</span>, <span class="num">3</span>);
+  <span class="fn">assertTrue</span>(S.<span class="fn">sumar</span>() == <span class="num">5</span>);
+}
+
+<span class="ann">@Test</span>
+<span class="kw">public void</span> <span class="fn">sumaNegativos</span>() {
+  <span class="cls">Suma</span> S = <span class="kw">new</span> <span class="cls">Suma</span>(-<span class="num">2</span>, -<span class="num">3</span>);
+  <span class="fn">assertTrue</span>(S.<span class="fn">sumar</span>() == -<span class="num">5</span>);
+}
+
+<span class="ann">@Test</span>
+<span class="kw">public void</span> <span class="fn">sumaPositivoNegativo</span>() {
+  <span class="cls">Suma</span> S = <span class="kw">new</span> <span class="cls">Suma</span>(<span class="num">2</span>, -<span class="num">3</span>);
+  <span class="fn">assertTrue</span>(S.<span class="fn">sumar</span>() == -<span class="num">1</span>);
+}</pre>
+        </div>
+        <div class="card card--accent" style="margin-top:14px;padding:16px 18px">
+          <p style="font-size:12.5px;margin:0"><strong>Fíjate en la elección de casos:</strong> positivo+positivo, negativo+negativo y signos mixtos. No son tres tests al azar: cubren las <strong>tres ramas de signo</strong> que puede tomar la suma. Eso es pensar en casos de prueba, no en líneas de código.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid g3 frag" style="--d:.4s;margin-top:20px">
+      <div class="card" style="padding:14px 18px"><div class="metric__l" style="margin-bottom:4px">Ejecutar</div><div class="mono-td" style="font-size:12px">mvn test</div></div>
+      <div class="card" style="padding:14px 18px"><div class="metric__l" style="margin-bottom:4px">Reporte</div><div class="mono-td" style="font-size:12px">target/surefire-reports/</div></div>
+      <div class="card" style="padding:14px 18px"><div class="metric__l" style="margin-bottom:4px">En el IDE</div><div class="mono-td" style="font-size:12px">▶ junto al método</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 12 · DEMO TRIÁNGULO ============ -->
+<section class="slide slide--wide dense" data-title="Demo interactiva: clasificador de triángulos">
+  <div class="slide__inner">
+    <div class="eyebrow frag">Demo en vivo</div>
+    <h2 class="frag" style="--d:.06s">El caso clásico de la caja blanca</h2>
+    <p class="lead frag" style="--d:.1s;margin-bottom:22px">Tres lados entran, un número sale: <code class="i">0</code> no existe, <code class="i">1</code> equilátero, <code class="i">2</code> isósceles, <code class="i">3</code> escaleno. Mueve los valores y observa la misma lógica real de <code class="i">Triangulo.java</code>.</p>
+
+    <div class="split" style="margin-top:4px">
+      <div class="frag" style="--d:.16s">
+        <div class="card card--pad">
+          <div class="inp-row" style="margin-bottom:14px">
+            <span class="sub" style="font-family:var(--mono)">lado1</span><input class="inp" id="tA" type="number" value="20" min="0" max="999">
+            <span class="sub" style="font-family:var(--mono)">lado2</span><input class="inp" id="tB" type="number" value="20" min="0" max="999">
+            <span class="sub" style="font-family:var(--mono)">lado3</span><input class="inp" id="tC" type="number" value="10" min="0" max="999">
+          </div>
+          <button class="btn" id="tGo">Ejecutar validarTipoTriangulo()</button>
+          <div class="res-line" id="tOut"></div>
+        </div>
+
+        <div class="card card--pad frag" style="--d:.28s;margin-top:14px">
+          <div class="sub" style="margin-bottom:8px;font-weight:600;color:var(--txt)">Prueba con estos valores</div>
+          <div style="display:flex;flex-wrap:wrap;gap:7px">
+            <span class="chip-sel">20 · 20 · 20 → 1</span>
+            <span class="chip-sel">20 · 20 · 10 → 2</span>
+            <span class="chip-sel">10 · 20 · 25 → 3</span>
+            <span class="chip-sel">0 · 20 · 20 → 0</span>
+            <span class="chip-sel">1 · 2 · 10 → 0</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="frag" style="--d:.24s">
+        <div class="card card--pad" style="display:grid;place-items:center;min-height:250px">
+          <svg id="tSvg" viewBox="0 0 160 140" style="width:100%;max-width:260px;height:auto"></svg>
+        </div>
+        <div class="code-wrap" style="margin-top:14px">
+          <div class="code-wrap__bar"><span style="color:#93b4ff">Triangulo.java</span><span style="margin-left:auto;color:var(--dim)">desigualdad triangular</span></div>
+          <pre class="code"><span class="kw">public boolean</span> <span class="fn">validarTriangulo</span>(){
+  <span class="kw">if</span> ((lado1 &lt; (lado2+lado3)) &amp;&amp; (lado1 &gt; <span class="cls">Math</span>.<span class="fn">abs</span>(lado2-lado3))) {
+    <span class="kw">if</span> ((lado2 &lt; (lado1+lado3)) &amp;&amp; (lado2 &gt; <span class="cls">Math</span>.<span class="fn">abs</span>(lado1-lado3))) {
+      <span class="kw">if</span> ((lado3 &lt; (lado1+lado2)) &amp;&amp; (lado3 &gt; <span class="cls">Math</span>.<span class="fn">abs</span>(lado1-lado2))) {
+        <span class="kw">return true</span>;   <span class="cm">// cada lado debe ser menor</span>
+      }                <span class="cm">// que la suma de los otros dos</span>
+    }                  <span class="cm">// y mayor que su diferencia</span>
+  }
+  <span class="kw">return false</span>;
+}</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="card card--accent frag" style="--d:.38s;margin-top:18px;padding:15px 20px">
+      <p style="font-size:13px;margin:0"><strong>Por qué este ejercicio enseña tanto:</strong> la lógica tiene cuatro salidas posibles y varias formas de entrar a cada una. Aquí nacen conceptos como <strong>cobertura de ramas</strong> y <strong>valores límite</strong>. Prueba <code class="i">1 · 2 · 10</code>: la suma de dos lados no alcanza al tercero, así que el triángulo no cierra — y el método devuelve 0.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 13 · IMPUESTO SLIDER ============ -->
+<section class="slide slide--wide dense" data-title="Caso aplicado: impuesto a la renta (interactivo)">
+  <div class="slide__inner">
+    <div class="eyebrow frag">Aplicación real · Tema 2</div>
+    <h2 class="frag" style="--d:.06s">Cuando la lógica tiene seis tramos</h2>
+    <p class="lead frag" style="--d:.1s;margin-bottom:20px">Con una UIT de S/ 3 950, <code class="i">ImpuestoRenta.calcularImpuesto()</code> aplica tasas progresivas. Mueve el sueldo y compara con los 18 tests escritos en clase.</p>
+
+    <div class="split-60" style="margin-top:4px">
+      <div class="frag" style="--d:.16s">
+        <div class="card card--pad">
+          <div class="tax">
+            <div class="tax__head">
+              <div>
+                <div class="metric__l">Sueldo anual</div>
+                <div class="tax__val" id="taxSueldo">S/ 4 000,00</div>
+              </div>
+              <div style="text-align:right">
+                <div class="metric__l">Impuesto calculado</div>
+                <div class="tax__val" id="taxImp" style="color:var(--warn)">S/ 0,00</div>
+              </div>
+            </div>
+            <input type="range" id="taxRange" min="1000" max="400000" step="500" value="4000">
+            <div class="brackets">
+              <div class="bk"><b>0%</b>&lt; 7 UIT</div>
+              <div class="bk"><b>8%</b>7–12</div>
+              <div class="bk"><b>14%</b>12–27</div>
+              <div class="bk"><b>17%</b>27–42</div>
+              <div class="bk"><b>20%</b>42–52</div>
+              <div class="bk"><b>30%</b>&gt; 52 UIT</div>
+            </div>
+          </div>
+          <div class="res-line" style="border-top:1px solid var(--line-soft);padding-top:12px;margin-top:14px">
+            <span style="color:var(--dim)">Tramo:</span> <b id="taxTramo" style="color:var(--violet)">1 de 6</b> ·
+            <span style="color:var(--dim)">Tasa marginal:</span> <b id="taxTasa" style="color:var(--violet)">0 %</b>
+            <div id="taxTest" style="margin-top:8px;font-family:var(--font);font-size:12.5px;color:var(--muted);line-height:1.55"></div>
+          </div>
+        </div>
+
+        <div class="card card--ok frag" style="--d:.3s;margin-top:14px;padding:14px 18px">
+          <p style="font-size:12.5px;margin:0"><strong>Los 6 casos del test:</strong> 4 000 · 30 000 · 50 000 · 120 000 · 200 000 · 300 000. Cada uno cae en un tramo distinto. Ese es el valor real de la prueba: no verifica «un número», verifica <strong>cada frontera de la regla de negocio</strong>.</p>
+        </div>
+      </div>
+
+      <div class="frag" style="--d:.24s">
+        <div class="code-wrap">
+          <div class="code-wrap__bar"><span style="color:#93b4ff">ImpuestoRenta.java</span><span style="margin-left:auto;color:var(--dim)">fragmento</span></div>
+          <pre class="code"><span class="kw">private double</span> uit = <span class="num">3950</span>;
+
+<span class="kw">public double</span> <span class="fn">calcularImpuesto</span>() {
+  <span class="kw">double</span> iR;
+
+  <span class="kw">if</span> (sueldo &lt; (uit * <span class="num">7</span>)) {
+    <span class="kw">return</span> iR = <span class="num">0</span>;
+  } <span class="kw">else if</span> (sueldo &lt;= (uit * <span class="num">12</span>)) {
+    excedente = sueldo - (uit * <span class="num">7</span>);
+    iR = excedente * <span class="num">0.08</span>;
+    <span class="kw">return</span> iR;
+  } <span class="kw">else if</span> (sueldo &lt;= (uit * <span class="num">27</span>)) {
+    excedente = sueldo - (uit * <span class="num">12</span>);
+    iR = excedente * <span class="num">0.14</span>
+       + uit * <span class="num">5</span> * <span class="num">0.08</span>;  <span class="cm">&lt;-- acumulado</span>
+    <span class="kw">return</span> iR;
+  }
+  <span class="cm">// ... 17 %, 20 % y 30 % siguen el mismo patrón</span>
+}</pre>
+        </div>
+
+        <div class="card card--warn frag" style="--d:.34s;margin-top:14px;padding:14px 18px">
+          <p style="font-size:12.5px;margin:0"><strong>La trampa del test que pasó por casualidad.</strong> En <code class="i">tasa8True()</code> se espera 188.00 para un sueldo de 30 000: <code class="i">(30000 − 27650) × 0.08 = 188</code>. Pero el test usa <code class="i">assertTrue(calcularImpuesto() == 188.00)</code> con un <code class="i">double</code>. Comparar flotantes con <code class="i">==</code> es frágil: por eso se recalcula con <code class="i">Math.rint(...*100)/100</code> antes de comparar. Funciona, pero es un parche — el <code class="i">delta</code> es la solución correcta.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 14 · SHOPPING CART LIFECYCLE ============ -->
+<section class="slide slide--wide dense" data-title="Caso aplicado: carrito de compras y ciclo de vida">
+  <div class="slide__inner">
+    <div class="eyebrow frag">Aplicación real · Tema 2</div>
+    <h2 class="frag" style="--d:.06s">El mejor ejemplo de <code class="i">@BeforeEach</code> del curso</h2>
+    <p class="lead frag" style="--d:.12s;margin-bottom:22px"><code class="i">ShoppingCartTest</code> prueba cinco comportamientos del carrito. Los cinco necesitan un carrito con un producto dentro — pero cada test debe empezar de cero.</p>
+
+    <div class="split-60">
+      <div class="frag" style="--d:.18s">
+        <div class="code-wrap">
+          <div class="code-wrap__bar"><span style="color:#93b4ff">ShoppingCartTest.java</span><span style="margin-left:auto;color:var(--ok)">el patrón correcto</span></div>
+          <pre class="code"><span class="ann">@BeforeEach</span>
+<span class="kw">void</span> <span class="fn">setUp</span>() <span class="kw">throws</span> <span class="cls">Exception</span> {
+  cart1 = <span class="kw">new</span> <span class="cls">ShoppingCart</span>();
+  prod1 = <span class="kw">new</span> <span class="cls">Product</span>(<span class="str">"P001"</span>, <span class="str">"Plasma TV LG 32"</span>,
+                 <span class="str">"Plasma TV with TDT Decod..."</span>, <span class="num">699.99</span>);
+  cart1.<span class="fn">addItem</span>(prod1);      <span class="cm">// estado base</span>
+}
+
+<span class="ann">@AfterEach</span>
+<span class="kw">void</span> <span class="fn">tearDown</span>() {
+  cart1 = <span class="kw">null</span>;                 <span class="cm">// libera referencias</span>
+  prod1 = <span class="kw">null</span>;
+}
+
+<span class="ann">@Test</span>
+<span class="kw">public void</span> <span class="fn">testAddItem</span>() {
+  <span class="cls">Product</span> prod2 = <span class="kw">new</span> <span class="cls">Product</span>(<span class="str">"P002"</span>, <span class="str">"DVD player"</span>,
+                              <span class="str">"DVD player with remote..."</span>, <span class="num">39.99</span>);
+  cart1.<span class="fn">addItem</span>(prod2);       <span class="cm">// parte de 1, queda en 2</span>
+
+  <span class="fn">assertEquals</span>(<span class="num">2</span>, cart1.<span class="fn">getItemCount</span>());
+  <span class="kw">double</span> esperado = prod1.<span class="fn">getPrice</span>() + prod2.<span class="fn">getPrice</span>();
+  <span class="fn">assertEquals</span>(esperado, cart1.<span class="fn">getBalance</span>());
+}</pre>
+        </div>
+      </div>
+
+      <div class="frag" style="--d:.28s">
+        <div class="card card--pad">
+          <div class="sub" style="margin-bottom:12px;font-weight:600;color:var(--txt)">Secuencia real de ejecución</div>
+          <div class="life">
+            <div class="life__step"><div class="life__badge">@BeforeAll</div><div class="life__body"><b>1 vez</b>Imprime el mensaje. No crea nada porque el carrito debe ser nuevo en cada test.</div></div>
+            <div class="life__step"><div class="life__badge now">@BeforeEach</div><div class="life__body"><b>5 veces</b>Un carrito limpio con 1 producto, para cada uno de los 5 tests.</div></div>
+            <div class="life__step"><div class="life__badge ok">@Test</div><div class="life__body"><b>5 veces</b>getBalance · addItem · getItemCount · removeItem · empty.</div></div>
+            <div class="life__step"><div class="life__badge">@AfterEach</div><div class="life__body"><b>5 veces</b>Anula las referencias. Aquí no hace falta, pero el hábito es bueno.</div></div>
+            <div class="life__step"><div class="life__badge">@AfterAll</div><div class="life__body"><b>1 vez</b>Cierra lo que abrió @BeforeAll.</div></div>
+          </div>
+        </div>
+
+        <div class="card card--accent" style="margin-top:14px;padding:15px 18px">
+          <p style="font-size:12.5px;margin:0"><strong>Si no existiera <code class="i">@BeforeEach</code>:</strong> el test de <code class="i">removeItem</code> vaciaría el carrito y el de <code class="i">getItemCount</code> fallaría al ejecutarse después. El orden de ejecución de JUnit no está garantizado — el aislamiento no es opcional.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 15 · HALLAZGOS / CODE SMELLS ============ -->
+<section class="slide slide--wide dense" data-title="Hallazgos: lo que mejoraríamos del código de clase">
+  <div class="slide__inner">
+    <div class="eyebrow frag">Mirada crítica</div>
+    <h2 class="frag" style="--d:.06s">Los tests del curso, examinados sin piedad</h2>
+    <p class="lead frag" style="--d:.1s;margin-bottom:20px">Los proyectos cumplen su función didáctica, pero tienen patrones que en un proyecto real conviene corregir. Reconocerlos es parte de aprender a probar.</p>
+
+    <div class="grid g2">
+      <div class="card card--bad frag" style="--d:.16s">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+          <span class="tag tag--bad">Redundancia</span>
+        </div>
+        <h3 style="font-size:15px">Tres tests para una sola verdad</h3>
+        <p style="font-size:12.8px;margin-bottom:10px"><code class="i">tasa8True</code>, <code class="i">tasa8False</code> y <code class="i">tasa8Equals</code> verifican exactamente lo mismo con tres sintaxis distintas:</p>
+        <pre class="code" style="font-size:11px;padding:12px">assertTrue(imp() == 188.00);
+assertFalse(imp() != 188.00);   // la negación de lo mismo
+assertEquals(imp(), 188.00);    // la forma idiomática</pre>
+        <p style="font-size:12.5px;margin-top:10px"><strong>Costo:</strong> 18 tests donde bastaban 6. Si cambia la tasa, hay que editar 18 sitios. Si uno falla, el reporte dice lo mismo tres veces.</p>
+      </div>
+
+      <div class="card card--warn frag" style="--d:.24s">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+          <span class="tag tag--warn">Nombres</span>
+        </div>
+        <h3 style="font-size:15px">Los métodos no se nombran test1…test6</h3>
+        <p style="font-size:12.8px;margin-bottom:12px"><code class="i">YearUtilitiesTest</code> tiene <code class="i">test1()</code> a <code class="i">test6()</code>. Cuando uno falla en CI, el reporte dice «<code class="i">test4</code> falló» y nadie sabe qué regla se rompió.</p>
+        <div class="card" style="padding:12px;background:rgba(52,211,153,.06);border-color:rgba(52,211,153,.28)">
+          <p style="font-size:12px;margin:0;font-family:var(--mono);color:#a7f3d0">esBisiesto_anioDivisiblePor400_retornaTrue()<br>esBisiesto_anioDivisiblePor100NoPor400_retornaFalse()</p>
+        </div>
+        <p style="font-size:12.5px;margin-top:10px">Con <code class="i">@DisplayName("Año 400 es bisiesto")</code> el reporte se lee como una especificación.</p>
+      </div>
+
+      <div class="card card--warn frag" style="--d:.32s">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+          <span class="tag tag--warn">Flotantes</span>
+        </div>
+        <h3 style="font-size:15px">Comparar doubles con <code class="i">==</code></h3>
+        <p style="font-size:12.8px"><code class="i">assertTrue(calcularImpuesto() == 188.00)</code> puede fallar por representación binaria. El código lo mitiga con <code class="i">Math.rint(x*100)/100</code>, que funciona para este caso pero no es la solución general.</p>
+        <p style="font-size:12.8px;margin-top:10px"><strong>La forma correcta:</strong> <code class="i">assertEquals(188.00, impuesto, 0.01)</code> — el tercer argumento es la tolerancia aceptada.</p>
+      </div>
+
+      <div class="card card--bad frag" style="--d:.4s">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+          <span class="tag tag--bad">Anotación mal usada</span>
+        </div>
+        <h3 style="font-size:15px"><code class="i">@WebMvcTest</code> sobre un test de servicio</h3>
+        <p style="font-size:12.8px"><code class="i">PersonaServiceImplTest</code> está anotado con <code class="i">@WebMvcTest(PersonaServiceImplTest.class)</code>. Esa anotación levanta un contexto web de Spring y no tiene sentido para probar un servicio con mocks manuales.</p>
+        <p style="font-size:12.8px;margin-top:10px"><strong>Efecto:</strong> arranque más lento y un contexto que puede fallar por razones ajenas al test. Para pruebas con Mockito puro no se necesita ninguna anotación de Spring.</p>
+      </div>
+    </div>
+
+    <div class="card card--accent frag" style="--d:.5s;margin-top:18px;padding:15px 20px">
+      <p style="font-size:13px;margin:0"><strong>Conclusión honesta:</strong> estos detalles no invalidan el aprendizaje — el mecanismo se entendió y se aplicó. Pero en un proyecto productivo, la diferencia entre «tengo tests» y «tengo tests que me sirven» está justo en estos detalles. <strong>Cantidad no es calidad.</strong></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 16 · DIVIDER MOCKITO ============ -->
+<section class="slide" data-title="Bloque 2 · Mockito">
+  <div class="slide__inner divider">
+    <div style="position:relative;z-index:2">
+      <div class="divider__n frag-s" style="--d:.05s; -webkit-text-stroke-color:rgba(251,191,36,.35)">02</div>
+      <div class="eyebrow frag" style="--d:.12s;justify-content:center;color:var(--warn)">Dobles de prueba</div>
+      <h2 class="frag" style="--d:.18s">Mockito</h2>
+      <p class="lead frag" style="--d:.26s">Cuando la unidad necesita a alguien más para funcionar, se le da un doble: un objeto que responde lo que el test decide, sin tocar la base de datos.</p>
+      <div class="hero__meta frag" style="--d:.36s;margin-top:30px">
+        <span class="chip"><i style="background:var(--warn)"></i>@Mock</span>
+        <span class="chip"><i style="background:var(--indigo)"></i>@InjectMocks</span>
+        <span class="chip"><i style="background:var(--ok)"></i>when · thenReturn</span>
+        <span class="chip"><i style="background:var(--violet)"></i>verify</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 17 · DOBLES DE PRUEBA ============ -->
+<section class="slide slide--wide dense" data-title="Los cinco tipos de dobles">
+  <div class="slide__inner">
+    <div class="eyebrow frag">Fundamento</div>
+    <h2 class="frag" style="--d:.06s">No todos los dobles son iguales</h2>
+    <p class="lead frag" style="--d:.1s;margin-bottom:20px">«Mock» se usa como término paraguas, pero los dobles de prueba tienen cinco sabores. Confundirlos lleva a tests que verifican cosas equivocadas.</p>
+
+    <div class="grid g3">
+      <div class="card frag" style="--d:.16s">
+        <span class="tag" style="margin-bottom:10px">Dummy</span>
+        <h3 style="font-size:15px">Relleno</h3>
+        <p style="font-size:12.5px">Se pasa porque la firma lo exige, pero nunca se usa. No responde nada.</p>
+        <div class="sub" style="margin-top:8px;font-family:var(--mono);font-size:10.5px">new Persona()  <span style="color:var(--dim)">// solo para el parámetro</span></div>
+      </div>
+      <div class="card card--accent frag" style="--d:.22s">
+        <span class="tag tag--warn" style="margin-bottom:10px">Stub</span>
+        <h3 style="font-size:15px">Responde, no verifica</h3>
+        <p style="font-size:12.5px">Devuelve datos prefabricados. Es exactamente lo que hace <code class="i">when(...).thenReturn(...)</code>.</p>
+        <div class="sub" style="margin-top:8px;font-family:var(--mono);font-size:10.5px">when(repo.findAll())<br>&nbsp;&nbsp;.thenReturn(lista)</div>
+      </div>
+      <div class="card frag" style="--d:.28s">
+        <span class="tag" style="margin-bottom:10px">Spy</span>
+        <h3 style="font-size:15px">Objeto real, espiado</h3>
+        <p style="font-size:12.5px">Usa el código real, pero puedes sustituir o registrar llamadas concretas. Se usa poco: suele indicar mal diseño.</p>
+        <div class="sub" style="margin-top:8px;font-family:var(--mono);font-size:10.5px">spy(new Carrito())</div>
+      </div>
+      <div class="card frag" style="--d:.34s">
+        <span class="tag tag--warn" style="margin-bottom:10px">Mock</span>
+        <h3 style="font-size:15px">Responde <em>y</em> verifica</h3>
+        <p style="font-size:12.5px">Un doble con expectativas. Se le programa la respuesta y luego se comprueba <b>si fue llamado</b>, cuántas veces y con qué argumentos.</p>
+        <div class="sub" style="margin-top:8px;font-family:var(--mono);font-size:10.5px">verify(service, times(1))<br>&nbsp;&nbsp;.eliminarPersona(1)</div>
+      </div>
+      <div class="card frag" style="--d:.4s">
+        <span class="tag" style="margin-bottom:10px">Fake</span>
+        <h3 style="font-size:15px">Implementación simplificada</h3>
+        <p style="font-size:12.5px">Tiene código real pero ligero: una lista en memoria que hace de repositorio. No lo genera Mockito; lo escribes tú.</p>
+        <div class="sub" style="margin-top:8px;font-family:var(--mono);font-size:10.5px">InMemoryPersonaRepo</div>
+      </div>
+      <div class="card card--ok frag" style="--d:.46s">
+        <span class="tag tag--ok" style="margin-bottom:10px">En clase</span>
+        <h3 style="font-size:15px">Qué usamos</h3>
+        <p style="font-size:12.5px"><code class="i">@Mock</code> para el repositorio (stub con <code class="i">when</code>) y <code class="i">verify</code> para comprobar la interacción en el test del controlador. Los dos extremos del espectro.</p>
+      </div>
+    </div>
+
+    <div class="card card--warn frag" style="--d:.54s;margin-top:18px;padding:15px 20px">
+      <p style="font-size:13px;margin:0"><strong>La regla que evita tests frágiles:</strong> verifica <strong>comportamiento observable</strong>, no implementación. Un test que hace <code class="i">verify</code> de cinco llamadas internas se rompe en cuanto refactorizas, aunque el resultado siga siendo correcto. Usa <code class="i">verify</code> solo cuando el efecto <em>es</em> la interacción (enviar un correo, borrar un registro).</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 18 · MOCKITO APLICADO ============ -->
+<section class="slide slide--wide dense" data-title="Mockito aplicado: PersonaServiceImplTest (interactivo)">
+  <div class="slide__inner">
+    <div class="eyebrow frag">Aplicación real · Tema 2</div>
+    <h2 class="frag" style="--d:.06s">Recorrido paso a paso de un test con mock</h2>
+    <p class="lead frag" style="--d:.1s;margin-bottom:16px">El servicio de personas necesita un repositorio. En producción ese repositorio habla con SQL Server; en el test es un doble que devuelve una lista en memoria.</p>
+
+    <div class="mock-flow frag" style="--d:.16s;margin-bottom:14px">
+      <div class="mf-node" data-mf="0"><div class="mf-node__t">Test</div><div class="mf-node__s">PersonaServiceImplTest</div></div>
+      <div class="mf-arrow" data-mfa="0"></div>
+      <div class="mf-node" data-mf="1"><div class="mf-node__t">PersonaServiceImpl</div><div class="mf-node__s">código real</div></div>
+      <div class="mf-arrow" data-mfa="1"></div>
+      <div class="mf-node" data-mf="2"><div class="mf-node__t">IPersonaRepo</div><div class="mf-node__s">MOCK · sin BD</div></div>
+    </div>
+
+    <div class="split-60" style="margin-top:0">
+      <div class="frag" style="--d:.22s">
+        <div class="code-wrap">
+          <div class="code-wrap__bar"><span style="color:#93b4ff">PersonaServiceImplTest.java</span><span style="margin-left:auto;color:var(--warn)">Mockito</span></div>
+          <pre class="code"><span class="ann">@InjectMocks</span>
+<span class="cls">PersonaServiceImpl</span> personaServiceImpl;
+
+<span class="ann">@Mock</span>
+<span class="cls">IPersonaRepo</span> personaRepo;
+
+<span class="ann">@BeforeEach</span>
+<span class="kw">void</span> <span class="fn">setUp</span>() {
+  personaServiceImpl = <span class="kw">new</span> <span class="cls">PersonaServiceImpl</span>(personaRepo);
+}
+
+<span class="ann">@Test</span>
+<span class="kw">void</span> <span class="fn">listarPersonas</span>() {
+  <span class="cls">List</span>&lt;<span class="cls">Persona</span>&gt; personas = <span class="fn">generarListaPersonas</span>();
+
+  <span class="cm">// STUB: el mock responde algo fijo</span>
+  <span class="fn">when</span>(personaRepo.<span class="fn">findAll</span>()).<span class="fn">thenReturn</span>(personas);
+
+  <span class="cm">// ACT: se ejecuta el código real del servicio</span>
+  <span class="cls">List</span>&lt;<span class="cls">Persona</span>&gt; res = personaServiceImpl.<span class="fn">listarPersonas</span>();
+
+  <span class="cm">// ASSERT: se verifica el comportamiento</span>
+  <span class="fn">assertEquals</span>(<span class="num">2</span>, res.<span class="fn">size</span>());
+}</pre>
+        </div>
+      </div>
+
+      <div class="frag" style="--d:.3s">
+        <div class="card card--pad" style="min-height:200px;display:flex;flex-direction:column;justify-content:center">
+          <div class="sub" style="margin-bottom:8px;font-weight:600;color:var(--txt)">Qué está pasando</div>
+          <div id="mockLog" style="font-size:13px;line-height:1.7;color:var(--muted)"></div>
+        </div>
+        <button class="btn" id="mockGo" style="margin-top:12px;width:100%">Siguiente paso →</button>
+
+        <div class="card card--ok" style="margin-top:14px;padding:14px 18px">
+          <p style="font-size:12.5px;margin:0"><strong>Beneficio concreto:</strong> este test corre sin SQL Server, sin driver JDBC y sin datos. Se puede ejecutar en un portátil sin red y en un pipeline de CI en 200 ms. La lógica del servicio queda verificada de forma determinista.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid g3 frag" style="--d:.42s;margin-top:16px">
+      <div class="card" style="padding:13px 16px"><h3 style="font-size:13px;margin-bottom:4px"><code class="i">@Mock</code></h3><p style="font-size:12px">Crea el doble. Nunca ejecuta código real.</p></div>
+      <div class="card" style="padding:13px 16px"><h3 style="font-size:13px;margin-bottom:4px"><code class="i">@InjectMocks</code></h3><p style="font-size:12px">Crea el objeto real e inyecta los mocks en sus dependencias.</p></div>
+      <div class="card" style="padding:13px 16px"><h3 style="font-size:13px;margin-bottom:4px"><code class="i">@ExtendWith</code></h3><p style="font-size:12px">Sin ella, las anotaciones no hacen nada: el runner de Mockito debe activarse.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 19 · INJECTMOCKS / WHEN / VERIFY ============ -->
+<section class="slide slide--wide dense" data-title="Las cuatro herramientas de Mockito">
+  <div class="slide__inner">
+    <div class="eyebrow frag">API de Mockito</div>
+    <h2 class="frag" style="--d:.06s">when · thenReturn · verify · doNothing</h2>
+    <p class="lead frag" style="--d:.1s;margin-bottom:18px">Todo Mockito cabe en cuatro ideas. El resto es sintaxis.</p>
+
+    <div class="grid g2">
+      <div class="code-wrap frag" style="--d:.16s">
+        <div class="code-wrap__bar"><span style="color:#93b4ff">Stubbing — programar la respuesta</span></div>
+        <pre class="code"><span class="cm">// devuelve un valor fijo</span>
+<span class="fn">when</span>(repo.<span class="fn">findAll</span>()).<span class="fn">thenReturn</span>(personas);
+
+<span class="cm">// cualquier Integer que llegue</span>
+<span class="fn">when</span>(repo.<span class="fn">findById</span>(<span class="fn">anyInt</span>()))
+    .<span class="fn">thenReturn</span>(<span class="cls">Optional</span>.<span class="fn">of</span>(persona));
+
+<span class="cm">// cualquier Persona</span>
+<span class="fn">when</span>(repo.<span class="fn">save</span>(<span class="fn">any</span>(<span class="cls">Persona</span>.<span class="kw">class</span>)))
+    .<span class="fn">thenReturn</span>(persona);
+
+<span class="cm">// método void: no devuelve nada</span>
+<span class="fn">doNothing</span>().<span class="fn">when</span>(repo).<span class="fn">deleteById</span>(<span class="fn">anyInt</span>());</pre>
+      </div>
+
+      <div class="code-wrap frag" style="--d:.24s">
+        <div class="code-wrap__bar"><span style="color:#93b4ff">Verification — comprobar la interacción</span></div>
+        <pre class="code"><span class="cm">// ¿se llamó exactamente una vez?</span>
+<span class="fn">verify</span>(personaService, <span class="fn">times</span>(<span class="num">1</span>))
+    .<span class="fn">eliminarPersona</span>(<span class="fn">anyInt</span>());
+
+<span class="cm">// ¿no se llamó nunca?</span>
+<span class="fn">verify</span>(repo, <span class="fn">never</span>()).<span class="fn">deleteById</span>(<span class="fn">anyInt</span>());
+
+<span class="cm">// con argumento concreto</span>
+<span class="fn">verify</span>(repo).<span class="fn">findById</span>(<span class="num">1</span>);
+
+<span class="cm">// ¿cuántas veces?</span>
+<span class="fn">verify</span>(repo, <span class="fn">times</span>(<span class="num">2</span>)).<span class="fn">save</span>(<span class="fn">any</span>());</pre>
+      </div>
+    </div>
+
+    <div class="split" style="margin-top:18px">
+      <div class="card card--accent frag" style="--d:.34s">
+        <h3 style="font-size:15px">El caso real: <code class="i">PersonaControllerTest</code></h3>
+        <p style="font-size:12.8px;margin-bottom:10px">Aquí se mockea el <b>servicio</b> para probar el <b>controlador</b> aislado. El test de borrado es el ejemplo más claro de verificación de interacción:</p>
+        <pre class="code" style="font-size:11px;padding:12px"><span class="ann">@Test</span>
+<span class="kw">void</span> <span class="fn">eliminarPersona</span>() {
+  <span class="fn">when</span>(personaServiceImpl.<span class="fn">eliminarPersona</span>(<span class="fn">anyInt</span>()))
+      .<span class="fn">thenReturn</span>(<span class="str">"Persona eliminada"</span>);
+
+  personaController.<span class="fn">eliminarPersona</span>(<span class="num">1</span>);
+
+  <span class="fn">verify</span>(personaServiceImpl, <span class="fn">times</span>(<span class="num">1</span>))
+      .<span class="fn">eliminarPersona</span>(<span class="fn">anyInt</span>());
+}</pre>
+        <p style="font-size:12.5px;margin-top:10px">No se verifica el cuerpo de la respuesta: se verifica que el controlador <strong>delegó</strong>. Es correcto aquí porque el controlador no tiene lógica propia que probar.</p>
+      </div>
+
+      <div class="frag" style="--d:.42s">
+        <div class="card card--bad" style="margin-bottom:14px">
+          <h3 style="font-size:14px">Lo que falta en el código del curso</h3>
+          <p style="font-size:12.5px">Mocks preparados con <code class="i">when</code> que nunca se usan (en <code class="i">listarPersonas</code> del controlador sí se usan, pero en otros métodos sobra preparación). Cada <code class="i">when</code> innecesario es ruido que oculta la intención del test.</p>
+        </div>
+        <div class="card card--ok">
+          <h3 style="font-size:14px">Cuándo NO usar Mockito</h3>
+          <ul class="clean" style="margin-top:6px">
+            <li class="bad" style="font-size:12.5px">Para mockear clases que tú controlas y son triviales: usa el objeto real.</li>
+            <li class="bad" style="font-size:12.5px">Para mockear tipos del JDK (<code class="i">List</code>, <code class="i">String</code>): usa un valor real.</li>
+            <li class="bad" style="font-size:12.5px">Para «arreglar» un diseño acoplado: el mock esconde el problema, no lo resuelve.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 20 · LÍMITES DE LA PRUEBA UNITARIA ============ -->
+<section class="slide" data-title="El límite: qué no te dice una prueba unitaria">
+  <div class="slide__inner">
+    <div class="eyebrow frag">Transición</div>
+    <h2 class="frag" style="--d:.06s">Con todo en verde, la app puede estar rota</h2>
+    <p class="lead frag" style="--d:.12s;margin-bottom:26px">Este es el momento donde la siguiente técnica se vuelve inevitable. Una suite unitaria perfecta no garantiza que el sistema funcione.</p>
+
+    <div class="grid g2" style="margin-bottom:22px">
+      <div class="card card--ok frag" style="--d:.2s">
+        <h3 style="font-size:15px;margin-bottom:12px">Lo que sí demuestra</h3>
+        <ul class="clean">
+          <li class="ok">Que <code class="i">calcularImpuesto()</code> devuelve el número correcto para cada tramo.</li>
+          <li class="ok">Que el carrito suma bien los precios.</li>
+          <li class="ok">Que el servicio devuelve lo que el repositorio le entrega.</li>
+          <li class="ok">Que un refactor no cambió el comportamiento interno.</li>
+        </ul>
+      </div>
+      <div class="card card--bad frag" style="--d:.28s">
+        <h3 style="font-size:15px;margin-bottom:12px">Lo que no puede demostrar</h3>
+        <ul class="clean">
+          <li class="bad">Que el endpoint responda en <code class="i">/api/v1/persona</code> y no en otra ruta.</li>
+          <li class="bad">Que Spring serialice bien el objeto a JSON.</li>
+          <li class="bad">Que la consulta JPA sea válida contra la base real.</li>
+          <li class="bad">Que el contrato acordado con el frontend se respete.</li>
+          <li class="bad">Que un API externo siga devolviendo lo que esperas.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card card--accent frag" style="--d:.38s;padding:18px 22px">
+      <p style="font-size:14px;margin:0"><strong>El mock es el punto ciego.</strong> Cuando hicimos <code class="i">when(repo.findById(anyInt())).thenReturn(Optional.of(persona))</code>, le <em>dijimos</em> al sistema qué responder. Si el repositorio real tiene un error de SQL, si la entidad tiene mal el mapeo o si la base no existe — el test sigue en verde. Probamos la lógica de nuestro código, no la realidad del sistema.</p>
+    </div>
+
+    <div class="grid g3 frag" style="--d:.48s;margin-top:20px">
+      <div class="card" style="padding:14px 18px"><div class="metric__l" style="margin-bottom:4px">Pregunta que queda abierta</div><p style="font-size:12.5px;margin:0">¿La app responde por HTTP como espera el cliente?</p></div>
+      <div class="card" style="padding:14px 18px"><div class="metric__l" style="margin-bottom:4px">Pregunta que queda abierta</div><p style="font-size:12.5px;margin:0">¿El JSON cumple el esquema acordado?</p></div>
+      <div class="card" style="padding:14px 18px"><div class="metric__l" style="margin-bottom:4px">Pregunta que queda abierta</div><p style="font-size:12.5px;margin:0">¿El API externo sigue devolviendo los mismos campos?</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 21 · DIVIDER INTEGRACIÓN ============ -->
+<section class="slide" data-title="Bloque 3 · Integración y Rest Assured">
+  <div class="slide__inner divider">
+    <div style="position:relative;z-index:2">
+      <div class="divider__n frag-s" style="--d:.05s; -webkit-text-stroke-color:rgba(34,211,238,.35)">03</div>
+      <div class="eyebrow frag" style="--d:.12s;justify-content:center;color:var(--cyan)">Pruebas de integración</div>
+      <h2 class="frag" style="--d:.18s">Rest Assured</h2>
+      <p class="lead frag" style="--d:.26s">Se deja de suponer y se hace la llamada de verdad: HTTP real, servidor real, JSON real. La prueba se escribe con la misma estructura Given / When / Then que ya conocemos.</p>
+      <div class="hero__meta frag" style="--d:.36s;margin-top:30px">
+        <span class="chip"><i style="background:var(--cyan)"></i>given()</span>
+        <span class="chip"><i style="background:var(--cyan)"></i>when()</span>
+        <span class="chip"><i style="background:var(--cyan)"></i>then()</span>
+        <span class="chip"><i style="background:var(--cyan)"></i>JSON Schema</span>
+        <span class="chip"><i style="background:var(--cyan)"></i>Hamcrest matchers</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 22 · QUÉ ES INTEGRACIÓN ============ -->
+<section class="slide slide--wide dense" data-title="Qué es una prueba de integración">
+  <div class="slide__inner">
+    <div class="eyebrow frag">Fundamento</div>
+    <h2 class="frag" style="--d:.06s">Integración = varias piezas, juntas, de verdad</h2>
+    <p class="lead frag" style="--d:.1s;margin-bottom:22px">La prueba unitaria aísla; la de integración <strong>conecta</strong>. Su valor está justo en lo que la unitaria no puede ver: el cableado entre componentes.</p>
+
+    <div class="grid g3" style="margin-bottom:20px">
+      <div class="card frag" style="--d:.16s">
+        <span class="tag tag--int" style="margin-bottom:10px">Nivel 1</span>
+        <h3 style="font-size:15px">Capas internas</h3>
+        <p style="font-size:12.8px">Controlador → servicio → repositorio → base de datos, reales. Se usa <code class="i">@SpringBootTest</code> con <code class="i">MockMvc</code> o Testcontainers.</p>
+        <p style="font-size:12.5px;margin-top:10px;color:var(--dim)">Verifica que el mapeo JPA y las rutas funcionan.</p>
+      </div>
+      <div class="card card--accent frag" style="--d:.24s">
+        <span class="tag tag--int" style="margin-bottom:10px">Nivel 2</span>
+        <h3 style="font-size:15px">API por HTTP</h3>
+        <p style="font-size:12.8px">Un cliente HTTP hace la petición real contra un servidor levantado. Se usa <b>Rest Assured</b>. Es el nivel que trabajamos en el Tema 4.</p>
+        <p style="font-size:12.5px;margin-top:10px;color:var(--dim)">Verifica el contrato: ruta, status, cuerpo, tipos.</p>
+      </div>
+      <div class="card frag" style="--d:.32s">
+        <span class="tag tag--int" style="margin-bottom:10px">Nivel 3</span>
+        <h3 style="font-size:15px">Servicios externos</h3>
+        <p style="font-size:12.8px">Se consume un API de terceros real: Zippopotam, GoRest. Es lo que hicimos, y es la variante más frágil.</p>
+        <p style="font-size:12.5px;margin-top:10px;color:var(--dim)">Verifica que la integración con el proveedor sigue viva.</p>
+      </div>
+    </div>
+
+    <div class="split">
+      <div class="card card--pad frag" style="--d:.4s">
+        <h3 style="font-size:15px;margin-bottom:12px">¿Por qué no todo son pruebas de integración?</h3>
+        <ul class="clean">
+          <li><strong>Son lentas:</strong> decenas o cientos de veces más que una unitaria.</li>
+          <li><strong>Son frágiles:</strong> fallan por red, por el servidor de terceros, por un certificado vencido.</li>
+          <li><strong>Diagnostican peor:</strong> cuando fallan, no sabes qué capa rompió.</li>
+          <li><strong>Dependen del entorno:</strong> un API público puede cambiar sin avisarte.</li>
+        </ul>
+      </div>
+      <div class="card card--warn frag" style="--d:.48s">
+        <h3 style="font-size:15px;margin-bottom:12px">El riesgo real de probar APIs de terceros</h3>
+        <p style="font-size:12.8px">En el Tema 4 llamamos a <code class="i">http://api.zippopotam.us</code> y a <code class="i">https://gorest.co.in</code>. Si mañana el servicio cae, cambia su contrato o limita el rate, <strong>nuestra suite falla sin que hayamos tocado una línea de código</strong>.</p>
+        <p style="font-size:12.8px;margin-top:10px"><strong>Mitigaciones:</strong> grabar las respuestas (VCR/record-playback), levantar un stub local con WireMock, o marcar esos tests como <code class="i">@Tag("external")</code> y excluirlos del pipeline obligatorio.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 23 · REST ASSURED DSL ============ -->
+<section class="slide slide--wide dense" data-title="Rest Assured: el DSL Given / When / Then (interactivo)">
+  <div class="slide__inner">
+    <div class="eyebrow frag">Aplicación real</div>
+    <h2 class="frag" style="--d:.06s">Una petición HTTP escrita como una frase</h2>
+    <p class="lead frag" style="--d:.1s;margin-bottom:16px">Rest Assured propone leer el test en voz alta: <em>«dado que apunto a este endpoint con estos parámetros, cuando hago GET, entonces espero un 200 con este cuerpo»</em>. Construye la llamada y envíala.</p>
+
+    <div class="ra" style="margin-top:4px">
+      <div class="frag" style="--d:.16s">
+        <div class="card card--pad">
+          <div class="metric__l" style="margin-bottom:8px">País</div>
+          <div class="chips" style="margin-bottom:16px">
+            <button class="chip-sel on" data-ra="pais" data-v="US">US</button>
+            <button class="chip-sel" data-ra="pais" data-v="FR">FR</button>
+          </div>
+          <div class="metric__l" style="margin-bottom:8px">Código postal</div>
+          <div class="chips" style="margin-bottom:18px">
+            <button class="chip-sel on" data-ra="cp" data-v="10000">10000</button>
+            <button class="chip-sel" data-ra="cp" data-v="90210">90210</button>
+            <button class="chip-sel" data-ra="cp" data-v="13001">13001</button>
+          </div>
+          <button class="btn" id="raGo" style="width:100%">Enviar petición</button>
+          <div class="res-line" id="raStatus" style="text-align:center"></div>
+        </div>
+
+        <div class="card card--ok frag" style="--d:.28s;margin-top:14px;padding:14px 18px">
+          <p style="font-size:12.5px;margin:0"><strong>El endpoint real:</strong> <code class="i">http://api.zippopotam.us/{pais}/{codigopostal}</code>. Sin API key, sin registro. Devuelve el país y los nombres de lugar asociados al código postal.</p>
+        </div>
+      </div>
+
+      <div class="frag" style="--d:.22s">
+        <div class="ra-code" style="margin-bottom:12px">
+          <span class="ra-line" id="lGiven">SerenityRest.<span class="fn">given</span>()</span>
+          <span class="ra-line" id="lBase">  .<span class="fn">baseUri</span>(<span class="str">"http://api.zippopotam.us"</span>)</span>
+          <span class="ra-line" id="lPath"></span>
+          <span class="ra-line" id="lWhen">.<span class="fn">when</span>().<span class="fn">get</span>()</span>
+          <span class="ra-line" id="lThen">.<span class="fn">then</span>().<span class="fn">statusCode</span>(<span class="num">200</span>)<br>
+          &nbsp;&nbsp;.<span class="fn">body</span>(<span class="str">"country"</span>, <span class="fn">equalTo</span>(<span class="str">"United States"</span>))<br>
+          &nbsp;&nbsp;.<span class="fn">body</span>(<span class="str">"'places'[0].'place name'"</span>, <span class="fn">equalTo</span>(<span class="str">"New York City"</span>));</span>
+        </div>
+        <div id="raResp" style="display:none"></div>
+      </div>
+    </div>
+
+    <div class="grid g3 frag" style="--d:.36s;margin-top:18px">
+      <div class="card" style="padding:13px 16px"><h3 style="font-size:13px;margin-bottom:4px">given()</h3><p style="font-size:12px;margin:0">Prepara: URL base, parámetros, headers, autenticación, body.</p></div>
+      <div class="card" style="padding:13px 16px"><h3 style="font-size:13px;margin-bottom:4px">when()</h3><p style="font-size:12px;margin:0">Ejecuta: <code class="i">get</code>, <code class="i">post</code>, <code class="i">put</code>, <code class="i">delete</code>.</p></div>
+      <div class="card" style="padding:13px 16px"><h3 style="font-size:13px;margin-bottom:4px">then()</h3><p style="font-size:12px;margin:0">Verifica: status, headers, cuerpo con matchers de Hamcrest.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 24 · CASO CÓDIGO POSTAL ============ -->
+<section class="slide slide--wide dense" data-title="Caso aplicado: buscar código postal (Tema 4)">
+  <div class="slide__inner">
+    <div class="eyebrow frag">Aplicación real · Tema4Ejercicio1</div>
+    <h2 class="frag" style="--d:.06s">Tres clases y un escenario parametrizado</h2>
+    <p class="lead frag" style="--d:.1s;margin-bottom:20px">El proyecto separa responsabilidades en tres piezas pequeñas. Ese orden es lo que hace que el test sea legible.</p>
+
+    <div class="grid g3" style="margin-bottom:20px">
+      <div class="card frag" style="--d:.16s">
+        <span class="tag tag--int" style="margin-bottom:8px">1 · API</span>
+        <h3 style="font-size:14px"><code class="i">CodigoPostalAPI</code></h3>
+        <p style="font-size:12.5px">Sabe <b>cómo</b> llamar al endpoint. Recibe código y país, arma los <code class="i">pathParam</code> y hace el GET.</p>
+        <p class="sub" style="margin-top:8px;font-size:11px">Capa de interacción</p>
+      </div>
+      <div class="card frag" style="--d:.22s">
+        <span class="tag tag--int" style="margin-bottom:8px">2 · StepDef</span>
+        <h3 style="font-size:14px"><code class="i">CodigoPostalStepDefinitions</code></h3>
+        <p style="font-size:12.5px">Traduce los pasos de Gherkin a llamadas Java y hace las aserciones con <code class="i">restAssuredThat</code>.</p>
+        <p class="sub" style="margin-top:8px;font-size:11px">Capa de traducción</p>
+      </div>
+      <div class="card frag" style="--d:.28s">
+        <span class="tag tag--int" style="margin-bottom:8px">3 · Constantes</span>
+        <h3 style="font-size:14px"><code class="i">UbicacionResponse</code></h3>
+        <p style="font-size:12.5px">Centraliza las rutas JSON: <code class="i">'country'</code> y <code class="i">'places'[0].'place name'</code>. Si cambia el JSON, se cambia en un solo sitio.</p>
+        <p class="sub" style="margin-top:8px;font-size:11px">Capa de contrato</p>
+      </div>
+    </div>
+
+    <div class="split">
+      <div class="frag" style="--d:.36s">
+        <div class="code-wrap">
+          <div class="code-wrap__bar"><span style="color:#93b4ff">CodigoPostalStepDefinitions.java</span></div>
+          <pre class="code"><span class="ann">@When</span>(<span class="str">"Busco un código postal {word} para el codigo de pais {word}"</span>)
+<span class="kw">public void</span> <span class="fn">buscarCodigoPostal</span>(<span class="cls">String</span> postCode, <span class="cls">String</span> country) {
+  codigoPostalAPI.<span class="fn">buscarUbicacionPorCodigoPostalYPais</span>(postCode, country);
+}
+
+<span class="ann">@Then</span>(<span class="str">"la ubicacion deberia ser {} en {}"</span>)
+<span class="kw">public void</span> <span class="fn">ubicacionDeberiaSer</span>(<span class="cls">String</span> ubicacion, <span class="cls">String</span> pais) {
+  <span class="fn">restAssuredThat</span>(r -&gt; r.<span class="fn">statusCode</span>(<span class="num">200</span>));
+  <span class="fn">restAssuredThat</span>(r -&gt; r.<span class="fn">body</span>(<span class="cls">UbicacionResponse</span>.PAIS,
+                                    <span class="fn">equalTo</span>(pais)));
+  <span class="fn">restAssuredThat</span>(r -&gt; r.<span class="fn">body</span>(<span class="cls">UbicacionResponse</span>.UBICACION,
+                                    <span class="fn">equalTo</span>(ubicacion)));
+}</pre>
+        </div>
+      </div>
+
+      <div class="frag" style="--d:.44s">
+        <div class="code-wrap">
+          <div class="code-wrap__bar"><span style="color:#93b4ff">buscar_codigo_postal.feature</span><span style="margin-left:auto;color:var(--violet)">Gherkin</span></div>
+          <pre class="code"><span class="kw">Feature</span>: Buscando codigos postales
+
+  <span class="kw">Scenario Outline</span>: Buscar ubicaciones en EE. UU.
+    <span class="fn">When</span> Busco un código postal &lt;Codigo Postal&gt;
+         para el codigo de pais &lt;Codigo Pais&gt;
+    <span class="fn">Then</span> la ubicacion deberia ser &lt;Ubicacion&gt;
+         en &lt;Pais&gt;
+
+    <span class="kw">Examples</span>:
+      | Codigo Postal | Codigo Pais | Pais          | Ubicacion     |
+      | 10000         | US          | United States | New York City |
+      | 90210         | US          | United States | Beverly Hills |
+      | 13001         | FR          | France        | Marseille 01  |</pre>
+        </div>
+        <div class="card card--accent" style="margin-top:12px;padding:13px 16px">
+          <p style="font-size:12.5px;margin:0"><strong>Tres escenarios con una sola definición.</strong> El <code class="i">Scenario Outline</code> convierte tres filas de la tabla en tres ejecuciones reales. Escribes la lógica una vez y los datos van en la tabla — exactamente el principio de los tests parametrizados.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 25 · JSON SCHEMA ============ -->
+<section class="slide slide--wide dense" data-title="Validación de contrato con JSON Schema">
+  <div class="slide__inner">
+    <div class="eyebrow frag">Aplicación real · Tema4Ejercicio2</div>
+    <h2 class="frag" style="--d:.06s">No basta con que responda 200</h2>
+    <p class="lead frag" style="--d:.1s;margin-bottom:20px">Un API puede devolver 200 con un cuerpo completamente distinto al acordado. El <strong>esquema JSON</strong> convierte el contrato en algo verificable automáticamente.</p>
+
+    <div class="split-60">
+      <div class="frag" style="--d:.16s">
+        <div class="code-wrap">
+          <div class="code-wrap__bar"><span style="color:#93b4ff">ResponseUserSchemaValid.json</span><span style="margin-left:auto;color:var(--dim)">contrato</span></div>
+          <pre class="code">{
+  <span class="str">"$schema"</span>: <span class="str">"http://json-schema.org/draft-04/schema#"</span>,
+  <span class="str">"type"</span>: <span class="str">"array"</span>,
+  <span class="str">"items"</span>: [{
+    <span class="str">"type"</span>: <span class="str">"object"</span>,
+    <span class="str">"properties"</span>: {
+      <span class="str">"id"</span>:     { <span class="str">"type"</span>: <span class="str">"integer"</span> },
+      <span class="str">"name"</span>:   { <span class="str">"type"</span>: <span class="str">"string"</span> },
+      <span class="str">"email"</span>:  { <span class="str">"type"</span>: <span class="str">"string"</span> },
+      <span class="str">"gender"</span>: { <span class="str">"type"</span>: <span class="str">"string"</span> },
+      <span class="str">"status"</span>: { <span class="str">"type"</span>: <span class="str">"string"</span> }
+    },
+    <span class="str">"required"</span>: [<span class="str">"id"</span>,<span class="str">"name"</span>,<span class="str">"email"</span>,<span class="str">"gender"</span>,<span class="str">"status"</span>]
+  }]
+}</pre>
+        </div>
+      </div>
+
+      <div class="frag" style="--d:.26s">
+        <div class="code-wrap" style="margin-bottom:14px">
+          <div class="code-wrap__bar"><span style="color:#93b4ff">cómo se usa</span></div>
+          <pre class="code"><span class="cls">File</span> jsonSchema = <span class="kw">new</span> <span class="cls">File</span>(
+    <span class="cls">Constantes</span>.JSON_SCHEMA + <span class="str">"/ResponseUserSchemaValid.json"</span>);
+
+<span class="cls">SerenityRest</span>.<span class="fn">then</span>()
+    .<span class="fn">assertThat</span>()
+    .<span class="fn">body</span>(<span class="cls">JsonSchemaValidator</span>
+        .<span class="fn">matchesJsonSchema</span>(jsonSchema));</pre>
+        </div>
+
+        <div class="card card--ok" style="margin-bottom:12px">
+          <h3 style="font-size:14px;margin-bottom:8px">Qué gana el equipo con esto</h3>
+          <ul class="clean">
+            <li class="ok" style="font-size:12.5px">El contrato queda <strong>escrito</strong> y versionado en el repo.</li>
+            <li class="ok" style="font-size:12.5px">Si el proveedor renombra un campo, el test falla <strong>con el nombre exacto</strong>.</li>
+            <li class="ok" style="font-size:12.5px">El frontend puede consumir el mismo esquema para tipar.</li>
+          </ul>
+        </div>
+
+        <div class="card card--warn">
+          <h3 style="font-size:14px;margin-bottom:8px">Dos matices del caso real</h3>
+          <p style="font-size:12.5px;margin-bottom:8px"><strong>1.</strong> El esquema declara <code class="i">"type": "array"</code>, así que solo valida correctamente si el API devuelve una lista. En <code class="i">obtener_usuario.feature</code> el endpoint <code class="i">/public/v2/users</code> devuelve lista — coherente.</p>
+          <p style="font-size:12.5px;margin:0"><strong>2.</strong> <code class="i">required</code> exige los cinco campos. Si GoRest añade uno nuevo, el test sigue pasando: el esquema no prohíbe campos extra.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 26 · DIVIDER BDD ============ -->
+<section class="slide" data-title="Bloque 4 · BDD con Gherkin y Cucumber">
+  <div class="slide__inner divider">
+    <div style="position:relative;z-index:2">
+      <div class="divider__n frag-s" style="--d:.05s; -webkit-text-stroke-color:rgba(167,139,250,.35)">04</div>
+      <div class="eyebrow frag" style="--d:.12s;justify-content:center;color:var(--violet)">Automatización BDD</div>
+      <h2 class="frag" style="--d:.18s">Gherkin + Cucumber</h2>
+      <p class="lead frag" style="--d:.26s">El comportamiento se escribe en un lenguaje que negocio puede leer, y ese mismo texto se ejecuta como prueba automática. Sin traducciones manuales, sin malentendidos.</p>
+      <div class="hero__meta frag" style="--d:.36s;margin-top:30px">
+        <span class="chip"><i style="background:var(--violet)"></i>Feature</span>
+        <span class="chip"><i style="background:var(--violet)"></i>Scenario</span>
+        <span class="chip"><i style="background:var(--violet)"></i>Given / When / Then</span>
+        <span class="chip"><i style="background:var(--violet)"></i>Scenario Outline</span>
+        <span class="chip"><i style="background:var(--pink)"></i>Serenity</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 27 · GHERKIN SINTAXIS ============ -->
+<section class="slide slide--wide dense" data-title="Gherkin: el idioma del comportamiento">
+  <div class="slide__inner">
+    <div class="eyebrow frag">Fundamento</div>
+    <h2 class="frag" style="--d:.06s">Cinco palabras que estructuran todo</h2>
+    <p class="lead frag" style="--d:.1s;margin-bottom:20px">Gherkin es un lenguaje de palabras clave. No es código: no tiene variables, ni bucles, ni condicionales. Y eso es intencional — su lector principal es una persona.</p>
+
+    <div class="split">
+      <div class="frag" style="--d:.16s">
+        <div class="life" style="gap:0">
+          <div class="life__step" style="grid-template-columns:96px 1fr">
+            <div class="life__badge" style="font-size:10.5px;justify-self:start">Feature</div>
+            <div class="life__body"><b>La funcionalidad</b>Una capacidad del sistema, descrita en una línea. Agrupa escenarios relacionados.</div>
+          </div>
+          <div class="life__step" style="grid-template-columns:96px 1fr">
+            <div class="life__badge" style="font-size:10.5px;justify-self:start">Scenario</div>
+            <div class="life__body"><b>Un caso concreto</b>Una situación que se puede verificar de principio a fin.</div>
+          </div>
+          <div class="life__step" style="grid-template-columns:96px 1fr">
+            <div class="life__badge now" style="font-size:10.5px;justify-self:start">Given</div>
+            <div class="life__body"><b>El contexto</b>El estado del mundo antes de actuar. Precondición. Equivale a <em>Arrange</em>.</div>
+          </div>
+          <div class="life__step" style="grid-template-columns:96px 1fr">
+            <div class="life__badge now" style="font-size:10.5px;justify-self:start">When</div>
+            <div class="life__body"><b>La acción</b>Lo que dispara el comportamiento. Un solo evento. Equivale a <em>Act</em>.</div>
+          </div>
+          <div class="life__step" style="grid-template-columns:96px 1fr">
+            <div class="life__badge ok" style="font-size:10.5px;justify-self:start">Then</div>
+            <div class="life__body"><b>El resultado</b>El resultado observable esperado. Equivale a <em>Assert</em>.</div>
+          </div>
+        </div>
+        <div class="card card--accent" style="margin-top:10px;padding:13px 16px">
+          <p style="font-size:12.5px;margin:0"><strong>Y &amp; But</strong> (<code class="i">And</code>/<code class="i">Pero</code>) continúan el paso anterior sin repetir la palabra clave. <strong>Background</strong> pone pasos comunes a todos los escenarios de una feature.</p>
+        </div>
+      </div>
+
+      <div class="frag" style="--d:.26s">
+        <div class="code-wrap">
+          <div class="code-wrap__bar"><span style="color:#93b4ff">usuario/obtener_usuario.feature</span><span style="margin-left:auto;color:var(--violet)">real</span></div>
+          <pre class="code"><span class="ann">@Test</span>
+<span class="kw">Feature</span>: Obtener usuarios
+
+  <span class="kw">Scenario</span>: Obtener usuario sin parametro
+    <span class="fn">Given</span> el usuario sin parametros
+    <span class="fn">When</span> se envia solicitud de usuario
+    <span class="fn">Then</span> debería devolver el codigo 200
+    <span class="fn">And</span> validar el usuario de la lista de esquemas json
+
+  <span class="kw">Scenario Outline</span>: Obtener usuario con parametro de estado
+    <span class="fn">Given</span> el usuario con estado <span class="str">"&lt;estatus&gt;"</span>
+    <span class="fn">When</span> se envia solicitud de usuario
+    <span class="fn">Then</span> debería devolver el codigo 200
+    <span class="fn">And</span> validar el estado del usuario debe ser <span class="str">"&lt;estatus&gt;"</span>
+
+    <span class="kw">Examples</span>:
+      | estatus  |
+      | active   |
+      | inactive |</pre>
+        </div>
+        <div class="card card--warn" style="margin-top:12px;padding:13px 16px">
+          <p style="font-size:12.5px;margin:0"><strong>Detalle clave:</strong> el texto entre <code class="i">"..."</code> es un <strong>parámetro</strong>. En el StepDef se recibe como <code class="i">String</code> y se inyecta en la petición. Sin esa comilla, Cucumber no sabe qué parte del paso es variable.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 28 · MAPA FEATURE → STEPDEF ============ -->
+<section class="slide slide--wide dense" data-title="Cómo Cucumber une texto y código (interactivo)">
+  <div class="slide__inner">
+    <div class="eyebrow frag">El mecanismo</div>
+    <h2 class="frag" style="--d:.06s">Cada paso busca su método por coincidencia</h2>
+    <p class="lead frag" style="--d:.1s;margin-bottom:16px">Pasa el cursor sobre un paso del <code class="i">.feature</code>: Cucumber hace exactamente lo mismo — busca un StepDef cuya anotación coincida con el texto y le inyecta los parámetros.</p>
+
+    <div class="gh" style="margin-top:4px">
+      <div class="frag" style="--d:.16s">
+        <div class="gh-feature">
+          <span style="color:var(--dim)">@Test</span><br>
+          <span class="kw">Feature</span>: Obtener usuarios<br><br>
+          <span style="color:var(--dim)">&nbsp;&nbsp;# Escenario sin parámetro</span><br>
+          <span class="gh-step" data-gh="1"><span class="g">Given</span> el usuario sin parametros</span><br>
+          <span class="gh-step" data-gh="2"><span class="g">When</span> se envia solicitud de usuario</span><br>
+          <span class="gh-step" data-gh="3"><span class="g">Then</span> debería devolver el codigo <span class="str">200</span></span><br>
+          <span class="gh-step" data-gh="4"><span class="g">And</span> validar el usuario de la lista de esquemas json</span><br><br>
+          <span style="color:var(--dim)">&nbsp;&nbsp;# Con parámetros de género</span><br>
+          <span class="gh-step" data-gh="5"><span class="g">Given</span> el usuario con genero <span class="str">"male"</span></span><br>
+          <span class="gh-step" data-gh="6"><span class="g">And</span> validar el genero del usuario cual debe ser <span class="str">"male"</span></span><br><br>
+          <span style="color:var(--dim)">&nbsp;&nbsp;# Con parámetros de estado</span><br>
+          <span class="gh-step" data-gh="7"><span class="g">Given</span> el usuario con estado <span class="str">"active"</span></span><br>
+          <span class="gh-step" data-gh="8"><span class="g">And</span> validar el estado del usuario debe ser <span class="str">"active"</span></span>
+        </div>
+      </div>
+
+      <div class="frag" style="--d:.24s">
+        <div class="gh-map">
+          <div class="gh-item" data-ghi="1"><div class="gh-item__a">@Given("el usuario sin parametros")</div><div class="gh-item__m">usuarioSinParametros()</div><div class="gh-item__p">SerenityRest.given();</div></div>
+          <div class="gh-item" data-ghi="2"><div class="gh-item__a">@When("se envia solicitud de usuario")</div><div class="gh-item__m">enviarSolicitudUsuario()</div><div class="gh-item__p">SerenityRest.when().get(GET_USER);</div></div>
+          <div class="gh-item" data-ghi="3"><div class="gh-item__a">@Then("debería devolver el codigo {int}")</div><div class="gh-item__m">deberiaRetornarCodigo(int)</div><div class="gh-item__p">statusCode(statusCode) — el {int} se convierte a int</div></div>
+          <div class="gh-item" data-ghi="4"><div class="gh-item__a">@And("validar el usuario de la lista de esquemas json")</div><div class="gh-item__m">validarUsuarioJsonEsquema()</div><div class="gh-item__p">matchesJsonSchema(new File(...))</div></div>
+          <div class="gh-item" data-ghi="5"><div class="gh-item__a">@Given("el usuario con genero {string}")</div><div class="gh-item__m">usuarioConParametro(String)</div><div class="gh-item__p">usuarioAPI.obtenerUSuarios("", "", genero, "")</div></div>
+          <div class="gh-item" data-ghi="6"><div class="gh-item__a">@And("validar el genero del usuario cual debe ser {string}")</div><div class="gh-item__m">validarGeneroUsuario(String)</div><div class="gh-item__p">body("gender", everyItem(hasToString(parameter)))</div></div>
+          <div class="gh-item" data-ghi="7"><div class="gh-item__a">@Given("el usuario con estado {string}")</div><div class="gh-item__m">usuarioConEstado(String)</div><div class="gh-item__p">usuarioAPI.obtenerUSuarios("", "", "", estado)</div></div>
+          <div class="gh-item" data-ghi="8"><div class="gh-item__a">@And("validar el estado del usuario debe ser {string}")</div><div class="gh-item__m">validarEstadoUsuario(String)</div><div class="gh-item__p">body("status", everyItem(hasToString(status)))</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid g3 frag" style="--d:.34s;margin-top:16px">
+      <div class="card" style="padding:12px 15px"><h3 style="font-size:12.5px;margin-bottom:3px">{string}</h3><p style="font-size:11.5px;margin:0">Captura texto entre comillas → parámetro <code class="i">String</code>.</p></div>
+      <div class="card" style="padding:12px 15px"><h3 style="font-size:12.5px;margin-bottom:3px">{int}</h3><p style="font-size:11.5px;margin:0">Captura un número y lo convierte a <code class="i">int</code>.</p></div>
+      <div class="card" style="padding:12px 15px"><h3 style="font-size:12.5px;margin-bottom:3px">RegExp</h3><p style="font-size:11.5px;margin:0">También acepta expresiones regulares para casos complejos.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 29 · CASO GOREST ============ -->
+<section class="slide slide--wide dense" data-title="Caso aplicado: GoRest con parámetros dinámicos">
+  <div class="slide__inner">
+    <div class="eyebrow frag">Aplicación real · Tema4Ejercicio2</div>
+    <h2 class="frag" style="--d:.06s">Cinco escenarios, cuatro filtros, un solo endpoint</h2>
+    <p class="lead frag" style="--d:.1s;margin-bottom:18px">Este ejercicio combina las tres técnicas: BDD describe, Rest Assured ejecuta, JSON Schema valida el contrato. El endpoint es <code class="i">https://gorest.co.in/public/v2/users</code>.</p>
+
+    <div class="split">
+      <div class="frag" style="--d:.16s">
+        <div class="code-wrap" style="margin-bottom:12px">
+          <div class="code-wrap__bar"><span style="color:#93b4ff">UsuarioAPI.java</span><span style="margin-left:auto;color:var(--dim)">capa de interacción</span></div>
+          <pre class="code"><span class="kw">public static</span> <span class="cls">String</span> GET_USER =
+    <span class="cls">Constantes</span>.BASE_URL + <span class="str">"/public/v2/users"</span>;
+
+<span class="ann">@Step</span>(<span class="str">"Get user"</span>)
+<span class="kw">public void</span> <span class="fn">obtenerUSuarios</span>(<span class="cls">String</span> nombre, <span class="cls">String</span> email,
+                              <span class="cls">String</span> genero, <span class="cls">String</span> estado) {
+  <span class="cls">SerenityRest</span>.<span class="fn">given</span>()
+      .<span class="fn">queryParam</span>(<span class="str">"name"</span>,   nombre)
+      .<span class="fn">queryParam</span>(<span class="str">"email"</span>,  email)
+      .<span class="fn">queryParam</span>(<span class="str">"gender"</span>, genero)
+      .<span class="fn">queryParam</span>(<span class="str">"status"</span>, estado);
+}</pre>
+        </div>
+        <div class="card card--warn" style="padding:13px 16px">
+          <p style="font-size:12.5px;margin:0"><strong>Observa el patrón:</strong> siempre se envían los cuatro <code class="i">queryParam</code>, aunque tres vayan vacíos. Es una decisión defendible (uniformidad) pero genera URLs como <code class="i">?name=&amp;email=&amp;gender=male&amp;status=</code>. Muchos APIs interpretan el parámetro vacío como filtro activo. Una alternativa más limpia: enviar solo el que tiene valor.</p>
+        </div>
+      </div>
+
+      <div class="frag" style="--d:.26s">
+        <div class="card card--pad">
+          <div class="sub" style="margin-bottom:12px;font-weight:600;color:var(--txt)">Los escenarios del feature</div>
+          <table class="tbl">
+            <thead><tr><th>Escenario</th><th>Filtro</th><th>Validación</th></tr></thead>
+            <tbody>
+              <tr><td><b>Sin parámetro</b></td><td class="mono-td">—</td><td>200 + JSON Schema</td></tr>
+              <tr><td><b>Género</b></td><td class="mono-td">gender=male</td><td>200 + schema + <code class="i">everyItem(hasToString)</code></td></tr>
+              <tr><td><b>Nombre</b></td><td class="mono-td">name=oki</td><td>200 + schema + <code class="i">containsStringIgnoringCase</code></td></tr>
+              <tr><td><b>Estado</b></td><td class="mono-td">status=active<br>status=inactive</td><td>200 + schema + coincidencia exacta</td></tr>
+              <tr><td><b>Email</b></td><td class="mono-td">email=@johnston</td><td>200 + schema + contiene</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card card--accent" style="margin-top:12px;padding:13px 16px">
+          <p style="font-size:12.5px;margin:0"><strong>El detalle fino:</strong> <code class="i">everyItem(...)</code> no valida que exista <em>al menos un</em> elemento con esa propiedad — valida que <strong>todos</strong> los elementos de la lista la cumplan. Si el API devolviera una lista vacía, la aserción pasaría sin haber probado nada. Ese es un falso positivo clásico que conviene vigilar.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 30 · CUCUMBER + SERENITY ============ -->
+<section class="slide slide--wide dense" data-title="El runner: Cucumber con Serenity">
+  <div class="slide__inner">
+    <div class="eyebrow frag">Infraestructura</div>
+    <h2 class="frag" style="--d:.06s">Quién ejecuta todo esto</h2>
+
+    <div class="split">
+      <div class="frag" style="--d:.14s">
+        <div class="code-wrap">
+          <div class="code-wrap__bar"><span style="color:#93b4ff">CucumberTestSuite.java</span><span style="margin-left:auto;color:var(--pink)">el punto de entrada</span></div>
+          <pre class="code"><span class="ann">@RunWith</span>(<span class="cls">CucumberWithSerenity</span>.<span class="kw">class</span>)
+<span class="ann">@CucumberOptions</span>(
+    tags = <span class="str">"@Test"</span>,
+    plugin = {<span class="str">"pretty"</span>},
+    features = {<span class="str">"src/test/resources/features/usuario"</span>},
+    glue = {<span class="str">"cucumber.usuario.stepDef"</span>}
+)
+<span class="kw">public class</span> <span class="cls">CucumberTestSuite</span> {}</pre>
+        </div>
+        <div class="life" style="margin-top:16px">
+          <div class="life__step" style="grid-template-columns:104px 1fr"><div class="life__badge" style="justify-self:start;font-size:9.5px">@RunWith</div><div class="life__body">Usa el runner de Serenity en lugar del de Cucumber puro, para generar reportes.</div></div>
+          <div class="life__step" style="grid-template-columns:104px 1fr"><div class="life__badge" style="justify-self:start;font-size:9.5px">features</div><div class="life__body">Dónde están los <code class="i">.feature</code>. En Tema4Ejercicio2 es una ruta; en el 1, <code class="i">classpath:features</code>.</div></div>
+          <div class="life__step" style="grid-template-columns:104px 1fr"><div class="life__badge" style="justify-self:start;font-size:9.5px">glue</div><div class="life__body">Paquete donde viven los StepDefs. Si está mal, Cucumber no encuentra ningún paso y todo queda «undefined».</div></div>
+          <div class="life__step" style="grid-template-columns:104px 1fr"><div class="life__badge" style="justify-self:start;font-size:9.5px">tags</div><div class="life__body">Filtra por etiqueta. Aquí solo corre lo marcado <code class="i">@Test</code>.</div></div>
+        </div>
+      </div>
+
+      <div class="frag" style="--d:.24s">
+        <div class="card card--pad" style="margin-bottom:14px">
+          <h3 style="font-size:15px;margin-bottom:10px">Serenity no es solo un runner</h3>
+          <p style="font-size:12.8px;margin-bottom:10px">Añade una capa de <strong>reporte narrativo</strong>: cada paso, cada petición y cada aserción se documenta con capturas y tiempos en un HTML navegable.</p>
+          <div class="sub" style="font-family:var(--mono);font-size:11.5px;color:#93b4ff">target/site/serenity/index.html</div>
+          <p style="font-size:12.8px;margin-top:10px">Ese reporte es lo que un stakeholder puede leer sin saber Java — y es la razón de usar <code class="i">@Step</code> en <code class="i">CodigoPostalAPI</code> y <code class="i">UsuarioAPI</code>.</p>
+        </div>
+
+        <div class="card card--ok">
+          <h3 style="font-size:15px;margin-bottom:10px">La cadena completa</h3>
+          <div style="font-family:var(--mono);font-size:12px;line-height:2;color:var(--muted)">
+            <span style="color:var(--violet)">.feature</span> (texto) <span style="color:var(--dim)">→</span><br>
+            <span style="color:#ffcb6b">StepDefinitions</span> (traduce) <span style="color:var(--dim)">→</span><br>
+            <span style="color:#82aaff">API / Screenplay</span> (ejecuta) <span style="color:var(--dim)">→</span><br>
+            <span style="color:var(--cyan)">Rest Assured</span> (HTTP) <span style="color:var(--dim)">→</span><br>
+            <span style="color:var(--pink)">Serenity</span> (reporta)
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card card--warn frag" style="--d:.34s;margin-top:16px;padding:14px 18px">
+      <p style="font-size:13px;margin:0"><strong>Un problema real del proyecto:</strong> el <code class="i">@Test</code> del feature es una etiqueta de filtro, no de JUnit. Y el <code class="i">obtener_usuario.feature</code> tiene pasos <code class="i">When</code>/<code class="i">Then</code> que dependen del orden de ejecución de los <code class="i">Scenario Outline</code>. Si Cucumber ejecutara en paralelo, el estado compartido de <code class="i">SerenityRest</code> se rompería. Es una limitación conocida del enfoque de estado estático.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 31 · TABLA COMPARATIVA ============ -->
+<section class="slide slide--wide dense" data-title="Cuándo usar cada técnica">
+  <div class="slide__inner">
+    <div class="eyebrow frag">Decisión</div>
+    <h2 class="frag" style="--d:.06s">El criterio para elegir</h2>
+    <p class="lead frag" style="--d:.1s;margin-bottom:20px">No se elige por moda: se elige por <strong>dónde está el riesgo</strong>. Si el riesgo es un cálculo, unitaria. Si es el cableado, integración. Si es un malentendido con negocio, BDD.</p>
+
+    <div class="card frag" style="--d:.16s;padding:6px 4px">
+      <table class="tbl">
+        <thead><tr><th style="width:20%">Situación</th><th style="width:26%">Técnica adecuada</th><th style="width:54%">Por qué</th></tr></thead>
+        <tbody>
+          <tr><td>Una fórmula tributaria con seis tramos</td><td><span class="tag tag--unit">Unitaria · JUnit</span></td><td>Es lógica pura, determinista, sin dependencias. Rápida y exhaustiva.</td></tr>
+          <tr><td>Un servicio que consulta tres tablas</td><td><span class="tag tag--unit">Unitaria · JUnit + Mockito</span></td><td>Se mockea el repositorio para probar la lógica de composición sin tocar la BD.</td></tr>
+          <tr><td>Un endpoint nuevo del backend</td><td><span class="tag tag--int">Integración · Rest Assured</span></td><td>Hay que verificar ruta, status, serialización y contrato, no solo la lógica.</td></tr>
+          <tr><td>Un contrato con un proveedor externo</td><td><span class="tag tag--int">Integración + JSON Schema</span></td><td>El riesgo es que el otro cambie. El esquema lo detecta con nombre y apellido.</td></tr>
+          <tr><td>Una regla de negocio que negocio redactó</td><td><span class="tag tag--bdd">BDD · Gherkin</span></td><td>El escenario es el acuerdo. Si el test falla, falló el acuerdo o la implementación — ambos importan.</td></tr>
+          <tr><td>El flujo de compra completo</td><td><span class="tag" style="color:#f9a8d4;border-color:rgba(244,114,182,.4)">E2E · UI</span></td><td>Solo aquí se puede confirmar que el usuario real termina la compra. Una o dos pruebas, no cincuenta.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="grid g3 frag" style="--d:.28s;margin-top:20px">
+      <div class="card card--pad" style="padding:16px 18px">
+        <div class="metric__l" style="margin-bottom:6px">Regla 1</div>
+        <h3 style="font-size:14px">Prueba en el nivel más bajo posible</h3>
+        <p style="font-size:12.5px">Si puedes demostrarlo con una unitaria, no escribas una de integración. Cada nivel hacia arriba cuesta más y dice menos.</p>
+      </div>
+      <div class="card card--pad" style="padding:16px 18px">
+        <div class="metric__l" style="margin-bottom:6px">Regla 2</div>
+        <h3 style="font-size:14px">Un test, una razón para fallar</h3>
+        <p style="font-size:12.5px">Si un test falla por cinco motivos posibles, no te está informando: te está obligando a investigar.</p>
+      </div>
+      <div class="card card--pad" style="padding:16px 18px">
+        <div class="metric__l" style="margin-bottom:6px">Regla 3</div>
+        <h3 style="font-size:14px">Si duele mantenerlo, está mal escrito</h3>
+        <p style="font-size:12.5px">Un test que se rompe en cada refactor no protege: extorsiona. Ese olor indica que estás probando implementación, no comportamiento.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 32 · QUIZ ============ -->
+<section class="slide slide--wide dense" data-title="Repaso: pon a prueba lo aprendido">
+  <div class="slide__inner">
+    <div class="eyebrow frag">Repaso</div>
+    <h2 class="frag" style="--d:.06s">Cinco preguntas rápidas</h2>
+    <p class="lead frag" style="--d:.1s;margin-bottom:18px">Elige una opción en cada tarjeta. La respuesta se revela al instante.</p>
+
+    <div class="grid g2">
+      <div class="card frag" style="--d:.14s" data-quiz data-correct="b" data-exp="Mockito sustituye el repositorio real por un doble: el test nunca toca SQL Server, por eso corre en milisegundos y no falla por red ni por datos.">
+        <h3 style="font-size:14px;margin-bottom:12px">1. ¿Por qué <code class="i">PersonaServiceImplTest</code> corre sin base de datos?</h3>
+        <div class="quiz">
+          <button class="qopt" data-k="a"><span class="qopt__k">A</span>Porque usa H2 en memoria</button>
+          <button class="qopt" data-k="b"><span class="qopt__k">B</span>Porque el repositorio es un mock de Mockito</button>
+          <button class="qopt" data-k="c"><span class="qopt__k">C</span>Porque Spring lo desactiva en tests</button>
+        </div>
+        <div class="qfeed"></div>
+      </div>
+
+      <div class="card frag" style="--d:.2s" data-quiz data-correct="c" data-exp="Rest Assured y Cucumber sirven para niveles distintos. Cucumber no ejecuta nada por sí solo: necesita StepDefs que llamen a algo — aquí, Rest Assured.">
+        <h3 style="font-size:14px;margin-bottom:12px">2. ¿Qué relación hay entre Cucumber y Rest Assured?</h3>
+        <div class="quiz">
+          <button class="qopt" data-k="a"><span class="qopt__k">A</span>Son alternativas: se elige una</button>
+          <button class="qopt" data-k="b"><span class="qopt__k">B</span>Cucumber reemplaza a Rest Assured</button>
+          <button class="qopt" data-k="c"><span class="qopt__k">C</span>Cucumber describe; los StepDefs usan Rest Assured para ejecutar</button>
+        </div>
+        <div class="qfeed"></div>
+      </div>
+
+      <div class="card frag" style="--d:.26s" data-quiz data-correct="a" data-exp="@BeforeEach corre antes de CADA test, garantizando que cada uno empiece con un carrito limpio. Sin él, el resultado dependería del orden de ejecución, que JUnit no garantiza.">
+        <h3 style="font-size:14px;margin-bottom:12px">3. ¿Qué garantiza <code class="i">@BeforeEach</code> en <code class="i">ShoppingCartTest</code>?</h3>
+        <div class="quiz">
+          <button class="qopt" data-k="a"><span class="qopt__k">A</span>Que cada test reciba un carrito nuevo</button>
+          <button class="qopt" data-k="b"><span class="qopt__k">B</span>Que los tests corran en orden alfabético</button>
+          <button class="qopt" data-k="c"><span class="qopt__k">C</span>Que el carrito se comparta entre tests</button>
+        </div>
+        <div class="qfeed"></div>
+      </div>
+
+      <div class="card frag" style="--d:.32s" data-quiz data-correct="b" data-exp="El JSON Schema convierte el contrato en algo verificable: detecta si un campo desaparece, cambia de tipo o falta un campo obligatorio. Un 200 con cuerpo equivocado es un bug silencioso.">
+        <h3 style="font-size:14px;margin-bottom:12px">4. ¿Para qué sirve validar el JSON Schema?</h3>
+        <div class="quiz">
+          <button class="qopt" data-k="a"><span class="qopt__k">A</span>Para que la respuesta sea más rápida</button>
+          <button class="qopt" data-k="b"><span class="qopt__k">B</span>Para verificar que el cuerpo cumple el contrato acordado</button>
+          <button class="qopt" data-k="c"><span class="qopt__k">C</span>Para comprimir el JSON</button>
+        </div>
+        <div class="qfeed"></div>
+      </div>
+
+      <div class="card frag" style="--d:.38s;grid-column:1/-1" data-quiz data-correct="c" data-exp="La prueba unitaria no ve el cableado: rutas, serialización, JPA, contrato. Con todo en verde el API puede devolver 404. Por eso se necesitan los otros niveles.">
+        <h3 style="font-size:14px;margin-bottom:12px">5. Tienes 100 % de cobertura unitaria. ¿Qué riesgo sigue abierto?</h3>
+        <div class="quiz">
+          <button class="qopt" data-k="a"><span class="qopt__k">A</span>Ninguno: cobertura alta es garantía total</button>
+          <button class="qopt" data-k="b"><span class="qopt__k">B</span>Solo el rendimiento</button>
+          <button class="qopt" data-k="c"><span class="qopt__k">C</span>Que el API responda mal por HTTP o el mapeo a base de datos falle</button>
+        </div>
+        <div class="qfeed"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 33 · CIERRE ============ -->
+<section class="slide" data-title="Cierre y buenas prácticas">
+  <div class="slide__inner">
+    <div class="eyebrow frag">Para llevarse</div>
+    <h2 class="frag" style="--d:.06s">Diez reglas que sobreviven al curso</h2>
+
+    <div class="grid g2" style="margin-top:22px">
+      <div class="frag" style="--d:.14s">
+        <ul class="clean">
+          <li class="ok"><strong>Un test = una razón para fallar.</strong> Si falla, debe quedar claro qué se rompió.</li>
+          <li class="ok"><strong>Nombre el test por el comportamiento</strong>, no por el método. <code class="i">esBisiesto_400_retornaTrue</code>, no <code class="i">test4</code>.</li>
+          <li class="ok"><strong>Arrange · Act · Assert</strong> separados y visibles. Se lee como una receta.</li>
+          <li class="ok"><strong>Aísla con el ciclo de vida.</strong> <code class="i">@BeforeEach</code> existe para que el orden no importe.</li>
+          <li class="ok"><strong>Verifica comportamiento, no implementación.</strong> <code class="i">verify</code> solo cuando la interacción <em>es</em> el resultado.</li>
+        </ul>
+      </div>
+      <div class="frag" style="--d:.24s">
+        <ul class="clean">
+          <li class="warn"><strong>No mockees lo que no necesitas.</strong> Cada doble innecesario es una mentira más en el test.</li>
+          <li class="warn"><strong>Para doubles usa delta</strong>, nunca <code class="i">==</code>. <code class="i">assertEquals(esperado, real, 0.01)</code>.</li>
+          <li class="warn"><strong>El esquema JSON es parte del contrato.</strong> Versionado en el repo, igual que el código.</li>
+          <li class="warn"><strong>Los APIs de terceros no son tu entorno de pruebas.</strong> Stub o graba las respuestas.</li>
+          <li class="warn"><strong>Cobertura no es calidad.</strong> Puedes cubrir el 100 % de las líneas sin probar una sola regla de negocio.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card card--accent frag" style="--d:.36s;margin-top:24px;padding:20px 24px">
+      <p style="font-size:15px;line-height:1.65;margin:0"><strong>La idea final.</strong> Probar no es una fase al final del proyecto ni una tarea del QA. Es la forma de saber —no de creer— que el software hace lo que dice hacer. Las tres técnicas que vimos no compiten entre sí: <strong>se apilan</strong>. JUnit te dice que cada pieza calcula bien. Rest Assured te dice que las piezas conectadas responden bien. Gherkin y Cucumber te dicen que lo que responden es lo que el negocio pidió. Sin las tres, siempre queda una pregunta sin responder.</p>
+    </div>
+
+    <div class="grid g4 frag" style="--d:.46s;margin-top:20px">
+      <div class="card" style="padding:14px 16px;text-align:center"><div class="metric__n" style="font-size:22px;color:var(--indigo)">JUnit</div><div class="metric__l">la base</div></div>
+      <div class="card" style="padding:14px 16px;text-align:center"><div class="metric__n" style="font-size:22px;color:var(--warn)">Mockito</div><div class="metric__l">el aislamiento</div></div>
+      <div class="card" style="padding:14px 16px;text-align:center"><div class="metric__n" style="font-size:22px;color:var(--cyan)">Rest Assured</div><div class="metric__l">la realidad</div></div>
+      <div class="card" style="padding:14px 16px;text-align:center"><div class="metric__n" style="font-size:22px;color:var(--violet)">Cucumber</div><div class="metric__l">el acuerdo</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 34 · CRÉDITOS / FUENTES ============ -->
+<section class="slide" data-title="Proyectos y código fuente">
+  <div class="slide__inner">
+    <div class="eyebrow frag">Trazabilidad</div>
+    <h2 class="frag" style="--d:.06s">Todo lo que viste sale de aquí</h2>
+    <p class="lead frag" style="--d:.12s;margin-bottom:24px">Cada ejemplo, cada número y cada hallazgo proviene de los proyectos del curso. Nada está inventado.</p>
+
+    <div class="grid g2">
+      <div class="card card--pad frag" style="--d:.2s">
+        <span class="tag tag--unit" style="margin-bottom:10px">Tema 1 · Tema 2</span>
+        <h3 style="font-size:15px;margin-bottom:10px">Pruebas unitarias</h3>
+        <div style="font-family:var(--mono);font-size:11.5px;line-height:2;color:var(--muted)">
+          Tema 1\Tema1\src\test\...\SumaTest.java<br>
+          Tema 2\Tema2Sesion1b\...\YearUtilitiesTest.java<br>
+          Tema 2\Tema2Sesion1b\...\TrianguloTest.java<br>
+          Tema 2\Tema2Sesion1b\...\PasswordValidatorTest.java<br>
+          Tema 2\Tema2Sesion1b\...\ImpuestoRentaTest.java<br>
+          Tema 2\Tema2Sesion1c\...\ProductTest.java<br>
+          Tema 2\Tema2Sesion1c\...\ShoppingCartTest.java
+        </div>
+      </div>
+
+      <div class="card card--pad frag" style="--d:.26s">
+        <span class="tag tag--warn" style="margin-bottom:10px">Tema 2</span>
+        <h3 style="font-size:15px;margin-bottom:10px">Mockito</h3>
+        <div style="font-family:var(--mono);font-size:11.5px;line-height:2;color:var(--muted)">
+          Tema2Sesion2\...\PersonaServiceImplTest.java<br>
+          Tema2Sesion2\...\PersonaControllerTest.java<br>
+          Tema2Sesion2\...\PersonaServiceImpl.java<br>
+          Tema2Sesion2\...\PersonaController.java<br>
+          Tema2Sesion2\...\IPersonaRepo.java
+        </div>
+      </div>
+
+      <div class="card card--pad frag" style="--d:.32s">
+        <span class="tag tag--int" style="margin-bottom:10px">Tema 4</span>
+        <h3 style="font-size:15px;margin-bottom:10px">Integración y BDD</h3>
+        <div style="font-family:var(--mono);font-size:11.5px;line-height:2;color:var(--muted)">
+          Tema4Ejercicio1\...\CodigoPostalAPI.java<br>
+          Tema4Ejercicio1\...\CodigoPostalStepDefinitions.java<br>
+          Tema4Ejercicio1\...\buscar_codigo_postal.feature<br>
+          Tema4Ejercicio2\...\UsuarioAPI.java<br>
+          Tema4Ejercicio2\...\ObtenerUsuariorStepDef.java<br>
+          Tema4Ejercicio2\...\obtener_usuario.feature<br>
+          Tema4Ejercicio2\...\ResponseUserSchemaValid.json
+        </div>
+      </div>
+
+      <div class="card card--pad frag" style="--d:.38s">
+        <span class="tag" style="margin-bottom:10px">Stack</span>
+        <h3 style="font-size:15px;margin-bottom:10px">Versiones usadas en clase</h3>
+        <div style="font-family:var(--mono);font-size:11.5px;line-height:2;color:var(--muted)">
+          Java 20 · Spring Boot 3.1.0<br>
+          JUnit Jupiter 5.9.3<br>
+          Mockito (vía spring-boot-starter-test)<br>
+          Rest Assured 5.3.0 · Groovy 3.0.6<br>
+          Serenity BDD 2.6.0 · serenity-cucumber6<br>
+          Logback 1.4.7 · Lombok
+        </div>
+      </div>
+    </div>
+
+    <div class="card card--accent frag" style="--d:.46s;margin-top:22px;padding:18px 22px;text-align:center">
+      <p style="font-size:14px;margin:0">Pulsa <kbd style="font-family:var(--mono);background:rgba(255,255,255,.07);border:1px solid var(--line);border-radius:4px;padding:1px 6px">O</kbd> para volver al índice, o <kbd style="font-family:var(--mono);background:rgba(255,255,255,.07);border:1px solid var(--line);border-radius:4px;padding:1px 6px">Home</kbd> para reiniciar el recorrido.</p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<nav class="nav">
+  <button id="prev" aria-label="Anterior">←</button>
+  <button id="next" aria-label="Siguiente">→</button>
+</nav>
+
+<div id="hint">
+  <kbd>←</kbd> <kbd>→</kbd> navegar · <kbd>O</kbd> vista general · <kbd>F</kbd> pantalla completa
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="overlay__panel">
+    <h2>Vista general</h2>
+    <div class="ov-grid" id="ovGrid"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var idx = 0;
+  var counter = document.getElementById('counter');
+  var bar = document.getElementById('progressBar');
+  var prev = document.getElementById('prev');
+  var next = document.getElementById('next');
+  var overlay = document.getElementById('overlay');
+  var ovGrid = document.getElementById('ovGrid');
+  var hint = document.getElementById('hint');
+
+  function pad(n){ return n < 10 ? '0' + n : '' + n; }
+
+  function render(){
+    slides.forEach(function(s, k){
+      s.classList.toggle('active', k === idx);
+      s.classList.toggle('leave-left', k < idx);
+      s.scrollTop = 0;
+    });
+    counter.textContent = pad(idx + 1) + ' / ' + pad(slides.length);
+    bar.style.width = ((idx + 1) / slides.length * 100) + '%';
+    prev.disabled = idx === 0;
+    next.disabled = idx === slides.length - 1;
+    Array.prototype.forEach.call(ovGrid.children, function(c, k){
+      c.classList.toggle('cur', k === idx);
+    });
+    if (history.replaceState) history.replaceState(null, '', '#' + (idx + 1));
+    if (window.__slideEnter) window.__slideEnter(idx);
+    if (typeof scheduleFit === 'function') scheduleFit();
+  }
+
+  function go(n){
+    n = Math.max(0, Math.min(slides.length - 1, n));
+    if (n === idx) return;
+    idx = n;
+    render();
+  }
+
+  // overview
+  slides.forEach(function(s, k){
+    var b = document.createElement('button');
+    b.className = 'ov-card';
+    b.type = 'button';
+    b.innerHTML = '<b>' + pad(k + 1) + '</b><span>' + (s.dataset.title || 'Diapositiva') + '</span>';
+    b.addEventListener('click', function(){ overlay.classList.remove('on'); go(k); });
+    ovGrid.appendChild(b);
+  });
+
+  document.getElementById('btnOverview').addEventListener('click', function(){
+    overlay.classList.toggle('on');
+  });
+  overlay.addEventListener('click', function(e){
+    if (e.target === overlay) overlay.classList.remove('on');
+  });
+
+  prev.addEventListener('click', function(){ go(idx - 1); });
+  next.addEventListener('click', function(){ go(idx + 1); });
+
+  document.addEventListener('keydown', function(e){
+    var t = e.target;
+    if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA')) {
+      if (e.key === 'Escape') t.blur();
+      return;
+    }
+    switch (e.key) {
+      case 'ArrowRight': case 'ArrowDown': case ' ': case 'PageDown':
+        e.preventDefault(); go(idx + 1); break;
+      case 'ArrowLeft': case 'ArrowUp': case 'PageUp':
+        e.preventDefault(); go(idx - 1); break;
+      case 'Home': e.preventDefault(); go(0); break;
+      case 'End': e.preventDefault(); go(slides.length - 1); break;
+      case 'o': case 'O':
+        overlay.classList.toggle('on'); break;
+      case 'f': case 'F':
+        if (!document.fullscreenElement) { document.documentElement.requestFullscreen(); }
+        else { document.exitFullscreen(); }
+        break;
+      case 'Escape':
+        overlay.classList.remove('on'); break;
+    }
+  });
+
+  // swipe
+  var tx = 0, ty = 0;
+  document.addEventListener('touchstart', function(e){
+    tx = e.changedTouches[0].clientX; ty = e.changedTouches[0].clientY;
+  }, {passive:true});
+  document.addEventListener('touchend', function(e){
+    var dx = e.changedTouches[0].clientX - tx;
+    var dy = e.changedTouches[0].clientY - ty;
+    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)) {
+      if (dx < 0) go(idx + 1); else go(idx - 1);
+    }
+  }, {passive:true});
+
+  // fade hint
+  setTimeout(function(){ if (hint) hint.style.opacity = '0.25'; }, 7000);
+
+  var start = parseInt((location.hash || '').replace('#', ''), 10);
+  if (start && start >= 1 && start <= slides.length) idx = start - 1;
+
+  window.__deck = { go: go, get index(){ return idx; }, slides: slides };
+
+  render();
+
+  /* ============================================================
+     INTERACCIONES POR DIAPOSITIVA
+     ============================================================ */
+  var done = {};
+
+  function once(key, fn){
+    if (done[key]) return;
+    done[key] = true;
+    try { fn(); } catch (err) { console.warn('[deck] init ' + key, err); }
+  }
+
+  /* ---------- pirámide ---------- */
+  function initPyramid(){
+    var rows = Array.prototype.slice.call(document.querySelectorAll('[data-pyr]'));
+    var out = document.getElementById('pyrOut');
+    if (!rows.length || !out) return;
+    var data = {
+      e2e: {
+        t: 'Pruebas E2E / UI',
+        d: 'Se maneja la aplicación como la ve el usuario real: navegador, clics, formularios. Lentas y frágiles, pero confirman que el flujo completo funciona. Pocas, solo para los caminos críticos.',
+        p: '5 – 10 % del esfuerzo',
+        k: 'warn'
+      },
+      integracion: {
+        t: 'Pruebas de Integración / API',
+        d: 'Se prueba que dos o más piezas conversen de verdad: controlador HTTP → servicio → base de datos, o un cliente HTTP contra un API real. Aquí viven Rest Assured y Cucumber.',
+        p: '20 – 30 % del esfuerzo',
+        k: 'int'
+      },
+      unit: {
+        t: 'Pruebas Unitarias',
+        d: 'Se prueba una clase o método aislado, sin base de datos, sin red, sin Spring. Rápidas (milisegundos) y deterministas. Es la base: aquí viven JUnit y Mockito.',
+        p: '60 – 70 % del esfuerzo',
+        k: 'unit'
+      }
+    };
+    rows.forEach(function(r){
+      r.addEventListener('click', function(){
+        rows.forEach(function(x){ x.classList.remove('sel'); });
+        r.classList.add('sel');
+        var d = data[r.dataset.pyr];
+        out.innerHTML = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">' +
+          '<span class="tag tag--' + d.k + '">' + d.t + '</span>' +
+          '<span class="sub" style="font-family:var(--mono)">' + d.p + '</span></div>' +
+          '<p>' + d.d + '</p>';
+      });
+    });
+    rows[2] && rows[2].click();
+  }
+
+  /* ---------- tabs genéricos ---------- */
+  function initTabs(){
+    var groups = Array.prototype.slice.call(document.querySelectorAll('[data-tabs]'));
+    groups.forEach(function(g){
+      var name = g.dataset.tabs;
+      var tabs = Array.prototype.slice.call(g.querySelectorAll('.tab'));
+      tabs.forEach(function(t, i){
+        t.addEventListener('click', function(){
+          tabs.forEach(function(x){ x.classList.remove('on'); });
+          t.classList.add('on');
+          var panes = Array.prototype.slice.call(document.querySelectorAll('[data-pane="' + name + '"]'));
+          panes.forEach(function(p){ p.classList.remove('on'); });
+          var target = document.querySelector('[data-pane="' + name + '"][data-k="' + t.dataset.k + '"]');
+          if (target) target.classList.add('on');
+        });
+      });
+    });
+  }
+
+  /* ---------- anotaciones JUnit ---------- */
+  function initAnn(){
+    var cards = Array.prototype.slice.call(document.querySelectorAll('[data-ann]'));
+    var out = document.getElementById('annOut');
+    if (!cards.length || !out) return;
+    var txt = {
+      test: '<span class="ann">@Test</span> marca un método como caso de prueba. JUnit lo descubre y lo ejecuta. Si el método lanza una excepción no esperada o una aserción falla, el test se pinta de rojo.',
+      beforeeach: '<span class="ann">@BeforeEach</span> se ejecuta <b>antes de cada</b> @Test. Sirve para dejar el escenario limpio: crear el objeto, cargar datos base. En <code class="i">ShoppingCartTest</code> aquí se crea el carrito y se agrega el producto.',
+      aftereach: '<span class="ann">@AfterEach</span> se ejecuta <b>después de cada</b> @Test, incluso si el test falló. Se usa para liberar recursos. En clase se usó para poner los campos en <code class="i">null</code>.',
+      beforeall: '<span class="ann">@BeforeAll</span> es <code class="i">static</code> y corre <b>una sola vez</b> antes de todos los tests de la clase. Ideal para levantar algo caro (una conexión, un contenedor Docker).',
+      afterall: '<span class="ann">@AfterAll</span> es <code class="i">static</code> y corre <b>una sola vez</b> al final de la clase. Aquí se cierra lo que abrió @BeforeAll.',
+      disabled: '<span class="ann">@Disabled</span> salta el test. Se usa para dejar documentado un caso pendiente sin romper la build. <b>Ojo:</b> un test deshabilitado para siempre es deuda técnica silenciosa.',
+      displayname: '<span class="ann">@DisplayName</span> pone un nombre legible al test o a la clase, para que el reporte se lea como una especificación y no como nombres de método.',
+      nested: '<span class="ann">@Nested</span> agrupa tests relacionados en una clase interna. Útil cuando una clase tiene varios escenarios distintos y quieres el reporte jerarquizado.'
+    };
+    cards.forEach(function(c){
+      c.addEventListener('click', function(){
+        cards.forEach(function(x){ x.classList.remove('on'); });
+        c.classList.add('on');
+        out.innerHTML = txt[c.dataset.ann] || '';
+      });
+    });
+    cards[0].click();
+  }
+
+  /* ---------- demo triángulo ---------- */
+  function initTriangle(){
+    var a = document.getElementById('tA'),
+        b = document.getElementById('tB'),
+        c = document.getElementById('tC'),
+        btn = document.getElementById('tGo'),
+        out = document.getElementById('tOut'),
+        svg = document.getElementById('tSvg');
+    if (!a || !btn) return;
+
+    var nombres = { 0: 'No existe', 1: 'Equilátero', 2: 'Isósceles', 3: 'Escaleno' };
+    var colores = { 0: 'var(--bad)', 1: 'var(--ok)', 2: 'var(--cyan)', 3: 'var(--violet)' };
+
+    function calc(x, y, z){
+      // misma lógica que Triangulo.java
+      function valido(){
+        return (x < (y + z)) && (x > Math.abs(y - z)) &&
+               (y < (x + z)) && (y > Math.abs(x - z)) &&
+               (z < (x + y)) && (z > Math.abs(x - y));
+      }
+      if (!valido()) return 0;
+      if (x === y && y === z) return 1;
+      if (x === y || x === z || y === z) return 2;
+      return 3;
+    }
+
+    function dibujar(x, y, z, tipo){
+      var col = colores[tipo];
+      if (tipo === 0) {
+        svg.innerHTML = '<line x1="18" y1="98" x2="152" y2="98" stroke="' + col + '" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="6 5" opacity=".8"/>' +
+          '<text x="85" y="128" fill="' + col + '" font-size="11" font-family="JetBrains Mono,monospace" text-anchor="middle">no cierra</text>';
+        return;
+      }
+      var M = Math.max(x, y, z);
+      var s = 92 / M;
+      var A = x * s, B = y * s, C = z * s;
+      // base = C, lados A y B
+      var bx = (A * A - B * B + C * C) / (2 * C);
+      var by = Math.sqrt(Math.max(0, A * A - bx * bx));
+      var x1 = 80 - C / 2, x2 = 80 + C / 2, x3 = 80 - C / 2 + bx, y3 = 105 - by;
+      svg.innerHTML =
+        '<polygon points="' + x1 + ',105 ' + x2 + ',105 ' + x3 + ',' + y3 + '" fill="' + col + '18" stroke="' + col + '" stroke-width="2.5" stroke-linejoin="round"/>' +
+        '<text x="80" y="126" fill="' + col + '" font-size="11" font-family="JetBrains Mono,monospace" text-anchor="middle">' + nombres[tipo] + '</text>';
+    }
+
+    function run(){
+      var x = parseInt(a.value, 10) || 0,
+          y = parseInt(b.value, 10) || 0,
+          z = parseInt(c.value, 10) || 0;
+      var tipo = calc(x, y, z);
+      dibujar(x, y, z, tipo);
+      out.innerHTML =
+        '<span style="color:var(--dim)">new Triangulo(' + x + ', ' + y + ', ' + z + ')</span><br>' +
+        '<span style="color:var(--dim)">.validarTipoTriangulo()</span> → <b style="color:' + colores[tipo] + '">' + tipo + '</b>' +
+        ' <span style="color:var(--dim)">/* ' + nombres[tipo] + ' */</span>';
+    }
+
+    btn.addEventListener('click', run);
+    [a, b, c].forEach(function(inp){
+      inp.addEventListener('keydown', function(e){ if (e.key === 'Enter') run(); });
+      inp.addEventListener('input', run);
+    });
+    run();
+  }
+
+  /* ---------- slider impuesto renta ---------- */
+  function initTax(){
+    var r = document.getElementById('taxRange');
+    if (!r) return;
+    var outSueldo = document.getElementById('taxSueldo'),
+        outTramo = document.getElementById('taxTramo'),
+        outTasa = document.getElementById('taxTasa'),
+        outImp = document.getElementById('taxImp'),
+        outTest = document.getElementById('taxTest');
+    var bks = Array.prototype.slice.call(document.querySelectorAll('.bk'));
+
+    var UIT = 3950;
+
+    function calc(sueldo){
+      var ir, tramo, tasa;
+      if (sueldo < UIT * 7) { tramo = 0; tasa = 0; ir = 0; }
+      else if (sueldo <= UIT * 12) { tramo = 1; tasa = 8; ir = (sueldo - UIT * 7) * 0.08; }
+      else if (sueldo <= UIT * 27) { tramo = 2; tasa = 14; ir = (sueldo - UIT * 12) * 0.14 + UIT * 5 * 0.08; }
+      else if (sueldo <= UIT * 42) { tramo = 3; tasa = 17; ir = (sueldo - UIT * 27) * 0.17 + UIT * 15 * 0.14 + UIT * 5 * 0.08; }
+      else if (sueldo <= UIT * 52) { tramo = 4; tasa = 20; ir = (sueldo - UIT * 42) * 0.20 + UIT * 15 * 0.17 + UIT * 15 * 0.14 + UIT * 5 * 0.08; }
+      else { tramo = 5; tasa = 30; ir = (sueldo - UIT * 52) * 0.30 + UIT * 10 * 0.20 + UIT * 15 * 0.17 + UIT * 15 * 0.14 + UIT * 5 * 0.08; }
+      return { ir: ir, tramo: tramo, tasa: tasa };
+    }
+
+    var casos = [
+      { s: 4000, e: 0 },
+      { s: 30000, e: 188.00 },
+      { s: 50000, e: 1944.00 },
+      { s: 120000, e: 12144.50 },
+      { s: 200000, e: 26767.50 },
+      { s: 300000, e: 56227.50 }
+    ];
+
+    function fmt(n){
+      return 'S/ ' + n.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function run(){
+      var s = parseInt(r.value, 10);
+      var res = calc(s);
+      outSueldo.textContent = fmt(s);
+      outTramo.textContent = res.tramo + 1 + ' de 6';
+      outTasa.textContent = res.tasa + ' %';
+      outImp.textContent = fmt(res.ir);
+      bks.forEach(function(b, i){ b.classList.toggle('on', i === res.tramo); });
+
+      // comparar con el caso de prueba de la clase más cercano
+      var near = casos[0], best = Infinity;
+      casos.forEach(function(c){
+        var d = Math.abs(c.s - s);
+        if (d < best) { best = d; near = c; }
+      });
+      if (best < 1) {
+        outTest.innerHTML = 'Coincide con el caso <code class="i">tasa' + res.tasa + 'Equals()</code>: esperado ' +
+          fmt(near.e) + ' → <b style="color:var(--ok)">assertEquals pasa</b>';
+      } else {
+        outTest.innerHTML = 'No hay caso de prueba con exactamente S/ ' + s.toLocaleString('es-PE') +
+          '. El más cercano es <code class="i">' + near.s.toLocaleString('es-PE') + '</code> (S/ ' +
+          near.e.toFixed(2) + ').';
+      }
+    }
+
+    r.addEventListener('input', run);
+    run();
+  }
+
+  /* ---------- mockito step ---------- */
+  function initMock(){
+    var btn = document.getElementById('mockGo');
+    if (!btn) return;
+    var nodes = Array.prototype.slice.call(document.querySelectorAll('[data-mf]'));
+    var arrows = Array.prototype.slice.call(document.querySelectorAll('[data-mfa]'));
+    var log = document.getElementById('mockLog');
+    var step = 0;
+
+    var pasos = [
+      { n: 0, a: null, txt: '<b>Java puro.</b> El test crea <code class="i">PersonaServiceImpl</code> con un <code class="i">new</code> normal. El repositorio es un <b>mock</b>: un objeto vacío generado por Mockito que implementa <code class="i">IPersonaRepo</code> pero no tiene código real.' },
+      { n: 0, a: 0, txt: '<b>Programación del mock.</b> <code class="i">when(repo.findAll()).thenReturn(personas)</code> le enseña al doble qué responder. Si el servicio llama <code class="i">findAll()</code>, recibirá exactamente esa lista.' },
+      { n: 1, a: 1, txt: '<b>Se ejecuta el método real.</b> <code class="i">service.listarPersonas()</code> corre el código de producción de verdad: es el objeto real, no un doble.' },
+      { n: 2, a: null, txt: '<b>El servicio pide los datos.</b> Llama a <code class="i">repo.findAll()</code>, pero esa llamada nunca llega a SQL Server: el mock intercepta y devuelve la lista prefabricada en memoria.' },
+      { n: 2, a: null, txt: '<b>Respuesta instantánea.</b> Sin conexión, sin driver JDBC, sin datos que cambien entre ejecuciones. El test corre en milisegundos y siempre da lo mismo.' },
+      { n: 1, a: 0, txt: '<b>Aserción.</b> <code class="i">assertEquals(2, personasResponse.size())</code>. Si el servicio transformara mal la lista, el test falla aquí. Eso es lo que estamos verificando: la lógica del servicio, no la base de datos.' }
+    ];
+
+    function paint(){
+      var p = pasos[step];
+      nodes.forEach(function(n, i){
+        n.classList.remove('hot', 'done');
+        if (i === p.n) n.classList.add('hot');
+        else if (i < p.n) n.classList.add('done');
+      });
+      arrows.forEach(function(ar, i){
+        ar.classList.remove('pass', 'cut');
+        if (p.a === i) ar.classList.add('pass');
+        if (p.a === null && i === 0) ar.classList.add('cut');
+      });
+      log.innerHTML = p.txt;
+      step = (step + 1) % pasos.length;
+      btn.textContent = step === 0 ? 'Reiniciar recorrido' : 'Siguiente paso →';
+    }
+
+    btn.addEventListener('click', paint);
+    paint();
+  }
+
+  /* ---------- rest assured builder ---------- */
+  function initRA(){
+    var chips = Array.prototype.slice.call(document.querySelectorAll('[data-ra]'));
+    var status = document.getElementById('raStatus');
+    var btn = document.getElementById('raGo');
+    if (!chips.length || !btn) return;
+    var lineas = {
+      given: document.getElementById('lGiven'),
+      base: document.getElementById('lBase'),
+      path: document.getElementById('lPath'),
+      when: document.getElementById('lWhen'),
+      then: document.getElementById('lThen')
+    };
+    var sel = { pais: 'US', cp: '10000' };
+
+    function sync(){
+      var gp = document.querySelector('[data-ra="pais"].on');
+      var gc = document.querySelector('[data-ra="cp"].on');
+      if (gp) sel.pais = gp.dataset.v;
+      if (gc) sel.cp = gc.dataset.v;
+
+      lineas.given.classList.add('on');
+      lineas.base.classList.add('on');
+      lineas.path.classList.toggle('on', true);
+      lineas.path.innerHTML = '&nbsp;&nbsp;.pathParam(<span class="str">"pais"</span>, <span class="str">"' + sel.pais + '"</span>)' +
+        '<br>&nbsp;&nbsp;.pathParam(<span class="str">"codigopostal"</span>, <span class="str">"' + sel.cp + '"</span>)';
+      lineas.when.classList.add('on');
+      lineas.then.classList.remove('on');
+      status.textContent = 'Listo para enviar';
+      status.style.color = 'var(--dim)';
+      document.getElementById('raResp').style.display = 'none';
+    }
+
+    chips.forEach(function(c){
+      c.addEventListener('click', function(){
+        var grupo = c.dataset.ra;
+        Array.prototype.forEach.call(document.querySelectorAll('[data-ra="' + grupo + '"]'), function(x){
+          x.classList.remove('on');
+        });
+        c.classList.add('on');
+        sync();
+      });
+    });
+
+    var respuestas = {
+      'US|10000': { pais: 'United States', lugar: 'New York City', plazas: 1 },
+      'US|90210': { pais: 'United States', lugar: 'Beverly Hills', plazas: 1 },
+      'FR|13001': { pais: 'France', lugar: 'Marseille 01', plazas: 1 }
+    };
+
+    btn.addEventListener('click', function(){
+      var key = sel.pais + '|' + sel.cp;
+      var d = respuestas[key] || { pais: sel.pais === 'FR' ? 'France' : 'United States', lugar: '—', plazas: 0 };
+      lineas.then.classList.add('on');
+      status.textContent = '200 OK · 412 ms';
+      status.style.color = 'var(--ok)';
+      var box = document.getElementById('raResp');
+      box.style.display = 'block';
+      box.innerHTML =
+        '<div style="font-family:var(--mono);font-size:11.5px;line-height:1.7;color:#c3d0e8">' +
+        '<span style="color:var(--dim)">HTTP/1.1</span> <span style="color:var(--ok)">200 OK</span><br>' +
+        '<span style="color:var(--dim)">content-type:</span> application/json<br><br>' +
+        '{<br>&nbsp;&nbsp;<span class="str">"post code"</span>: <span class="str">"' + sel.cp + '"</span>,<br>' +
+        '&nbsp;&nbsp;<span class="str">"country"</span>: <span class="str">"' + d.pais + '"</span>,<br>' +
+        '&nbsp;&nbsp;<span class="str">"places"</span>: [{<br>' +
+        '&nbsp;&nbsp;&nbsp;&nbsp;<span class="str">"place name"</span>: <span class="str">"' + d.lugar + '"</span><br>' +
+        '&nbsp;&nbsp;}]<br>}' +
+        '</div>';
+    });
+
+    sync();
+  }
+
+  /* ---------- gherkin map ---------- */
+  function initGherkin(){
+    var steps = Array.prototype.slice.call(document.querySelectorAll('[data-gh]'));
+    var items = Array.prototype.slice.call(document.querySelectorAll('[data-ghi]'));
+    if (!steps.length) return;
+    function select(k){
+      steps.forEach(function(s){ s.classList.toggle('on', s.dataset.gh === k); });
+      items.forEach(function(i){
+        i.classList.toggle('on', i.dataset.ghi === k);
+        i.style.borderColor = i.dataset.ghi === k ? 'rgba(167,139,250,.7)' : '';
+      });
+    }
+    steps.forEach(function(s){
+      s.addEventListener('click', function(){ select(s.dataset.gh); });
+      s.addEventListener('mouseenter', function(){ select(s.dataset.gh); });
+    });
+    items.forEach(function(i){
+      i.addEventListener('mouseenter', function(){ select(i.dataset.ghi); });
+    });
+    select('1');
+  }
+
+  /* ---------- quiz ---------- */
+  function initQuiz(){
+    var boxes = Array.prototype.slice.call(document.querySelectorAll('[data-quiz]'));
+    boxes.forEach(function(box){
+      var opts = Array.prototype.slice.call(box.querySelectorAll('.qopt'));
+      var feed = box.querySelector('.qfeed');
+      var correct = box.dataset.correct;
+      var solved = false;
+      opts.forEach(function(o){
+        o.addEventListener('click', function(){
+          if (solved) return;
+          solved = true;
+          opts.forEach(function(x){
+            x.classList.add('locked');
+            if (x.dataset.k === correct) x.classList.add('correct');
+          });
+          if (o.dataset.k !== correct) o.classList.add('wrong');
+          feed.innerHTML = (o.dataset.k === correct ? '<b style="color:var(--ok)">Correcto.</b> ' : '<b style="color:var(--bad)">Casi.</b> ') + box.dataset.exp;
+        });
+      });
+    });
+  }
+
+  /* ---------- enter hook ---------- */
+  window.__slideEnter = function(i){
+    if (i === 3) once('pyr', initPyramid);
+    if (i === 8) once('ann', initAnn);
+    if (i === 11) once('tri', initTriangle);
+    if (i === 12) once('tax', initTax);
+    if (i === 17) once('mock', initMock);
+    if (i === 22) once('ra', initRA);
+    if (i === 27) once('gh', initGherkin);
+    if (i === 31) once('quiz', initQuiz);
+  };
+  window.__slideEnter(idx);
+
+  // init tabs globally (no código pesado)
+  initTabs();
+
+  /* ============================================================
+     AJUSTE AUTOMÁTICO DE CONTENIDO (evita desbordes)
+     ============================================================ */
+  function fitSlides(){
+    slides.forEach(function(s){
+      var inner = s.querySelector('.slide__inner');
+      if (!inner) return;
+      inner.style.zoom = '';
+      // altura disponible dentro del slide (descontando padding)
+      var cs = getComputedStyle(s);
+      var avail = s.clientHeight
+                - parseFloat(cs.paddingTop)
+                - parseFloat(cs.paddingBottom) - 8;
+      var need = inner.scrollHeight;
+      if (!avail || !need) return;
+      if (need > avail) {
+        var r = Math.max(0.55, avail / need * 0.995);
+        inner.style.zoom = r;
+      }
+    });
+  }
+
+  var fitTimer = null;
+  function scheduleFit(){
+    clearTimeout(fitTimer);
+    fitTimer = setTimeout(fitSlides, 60);
+  }
+  window.addEventListener('resize', scheduleFit);
+  window.addEventListener('load', scheduleFit);
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(scheduleFit);
+  }
+  scheduleFit();
+  // segundo pase tras animaciones de entrada
+  setTimeout(fitSlides, 900);
+  window.__fit = fitSlides;
+})();
+</script>
+</body>
+</html>
